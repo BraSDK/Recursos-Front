@@ -1,56 +1,58 @@
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Mail, User } from 'lucide-react';
 
 const EmpleadoTable = ({ empleados, onEdit, onDelete }) => {
   return (
-    <div className="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-100">
+    <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Empleado</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">DNI</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Puesto / Departamento</th>
-            <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Empleado</th>
+            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">DNI</th>
+            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Cargo</th>
+            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+            <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-100">
-          {empleados.length > 0 ? (
-            empleados.map(emp => (
-              <tr key={emp.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {emp.nombres} {emp.apellidos}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {emp.dni}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{emp.puesto?.nombre_puesto || 'Sin puesto'}</div>
-                  <div className="text-xs text-gray-400">{emp.puesto?.departamento?.nombre || 'General'}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex justify-end gap-3">
-                    <button 
-                      onClick={() => onEdit(emp)} 
-                      className="text-indigo-600 hover:text-indigo-900 flex items-center"
-                    >
-                      <Edit className="w-4 h-4 mr-1" /> Editar
-                    </button>
-                    <button 
-                      onClick={() => onDelete(emp.id, `${emp.nombres}`)} 
-                      className="text-red-600 hover:text-red-900 flex items-center"
-                    >
-                      <Trash2 className="w-4 h-4 mr-1" /> Eliminar
-                    </button>
+        <tbody className="divide-y divide-gray-200 bg-white">
+          {empleados.map((emp) => (
+            <tr key={emp.id} className="hover:bg-gray-50 transition-colors">
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                    <User size={20} />
                   </div>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" className="px-6 py-10 text-center text-gray-500">
-                No se encontraron empleados.
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">{emp.nombres} {emp.apellidos}</div>
+                    <div className="text-sm text-gray-500 flex items-center gap-1">
+                       <Mail size={12} /> {emp.user?.email}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td className="px-6 py-4 text-sm text-gray-600 font-medium">{emp.dni}</td>
+              <td className="px-6 py-4">
+                <div className="text-sm text-gray-900">{emp.puesto?.nombre_puesto}</div>
+                <div className="text-xs text-gray-500">{emp.puesto?.departamento?.nombre}</div>
+              </td>
+              <td className="px-6 py-4">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  emp.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {emp.estado}
+                </span>
+              </td>
+              <td className="px-6 py-4 text-right">
+                <div className="flex justify-end gap-2">
+                  <button onClick={() => onEdit(emp)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
+                    <Edit size={18} />
+                  </button>
+                  <button onClick={() => onDelete(emp.id, emp.nombres)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </div>
