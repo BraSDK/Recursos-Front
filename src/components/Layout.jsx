@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Users, Building2, Calculator, CalendarCheck } from 'lucide-react';
+import { Users, Briefcase, Building2, Calculator, CalendarCheck } from 'lucide-react';
 
 const Layout = ({ children }) => {
   return (
@@ -16,7 +16,10 @@ const Layout = ({ children }) => {
           <Link to="/empleados" className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
             <Users className="w-5 h-5 mr-3" /> Empleados
           </Link>
-          <Link to="#" className="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-gray-100">
+          <Link to="/puestos" className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
+            <Briefcase className="w-5 h-5 mr-3" /> Puestos
+          </Link>
+          <Link to="/departamentos" className="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-gray-100">
             <Building2 className="w-5 h-5 mr-3" /> Departamentos
           </Link>
           <Link to="#" className="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-gray-100">
@@ -46,5 +49,4 @@ const Layout = ({ children }) => {
   );
 };
 
-// ¡ESTA LÍNEA ES LA QUE FALTA Y POR ESO SALE EN BLANCO!
 export default Layout;

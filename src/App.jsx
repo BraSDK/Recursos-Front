@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Empleados from './pages/Empleados';
+import Puestos from './pages/Puestos';
+import Departamentos from './pages/Departamentos';
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
             </div>
           } />
           <Route path="/empleados" element={<Empleados />} />
+          <Route path="/puestos" element={<Puestos />} />
+          <Route path="/Departamentos" element={<Departamentos />} />
         </Routes>
       </Layout>
     </Router>
