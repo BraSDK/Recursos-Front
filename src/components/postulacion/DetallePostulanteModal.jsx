@@ -46,7 +46,7 @@ const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => 
               <div className="relative group mx-auto w-48 h-48">
                 <div className="w-full h-full rounded-3xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
                   {postulante.foto_path ? (
-                    <img src={`http://localhost:8000/storage/${postulante.foto_path}`} className="w-full h-full object-cover" alt="Perfil" />
+                    <img src={`http://sistema-rrhh.test/storage/${postulante.foto_path}`} className="w-full h-full object-cover" alt="Perfil" />
                   ) : (
                     <User size={64} className="text-gray-300" />
                   )}

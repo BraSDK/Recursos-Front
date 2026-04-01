@@ -1,4 +1,4 @@
-import { Briefcase, Plus, Trash2, Calendar } from 'lucide-react';
+import { Briefcase, Plus, Trash2, Calendar, FileText, Phone } from 'lucide-react';
 
 const Paso4Experiencia = ({ data, setData, onNext, onBack }) => {
   
@@ -6,7 +6,7 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack }) => {
     // Aseguramos que trabajamos con un array
     const experienciasActuales = data.experiencia_laboral || [];
     if (experienciasActuales.length < 3) {
-      const nuevaExp = { entidad: '', cargo: '', motivo_cese: '', inicio: '', fin: '' };
+      const nuevaExp = { entidad: '', cargo: '', motivo_cese: '', inicio: '', fin: '', telefono_referencia: '' };
       setData({ ...data, experiencia_laboral: [...experienciasActuales, nuevaExp] });
     }
   };
@@ -15,6 +15,24 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack }) => {
     const nuevasExp = [...data.experiencia_laboral];
     nuevasExp[index][campo] = valor;
     setData({ ...data, experiencia_laboral: nuevasExp });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type === "application/pdf") {
+      // Verificamos tamaño (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("El archivo es muy pesado. Máximo 5MB.");
+        e.target.value = ""; // Limpiamos el input
+        return;
+      }
+      setData({ ...data, cv: file });
+    } else {
+      alert("Por favor, sube un archivo PDF válido.");
+      e.target.value = "";
+    }
   };
 
   const eliminarExperiencia = (index) => {
@@ -39,6 +57,21 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack }) => {
             >
               <Trash2 size={18} />
             </button>
+
+            {/* ... Campos existentes (Entidad, Cargo, Fechas) ... */}
+            {/* CAMPO NUEVO: Teléfono de Referencia */}
+            <div>
+              <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Teléfono de Referencia</label>
+              <div className="relative">
+                <Phone size={16} className="absolute left-3 top-3.5 text-gray-400" />
+                <input 
+                  placeholder="Ej. 987654321"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                  value={exp.telefono_referencia || ''}
+                  onChange={(e) => actualizarExperiencia(index, 'telefono_referencia', e.target.value)}
+                />
+              </div>
+            </div>
             
             <div className="pr-8">
               <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Empresa / Entidad</label>
@@ -92,6 +125,24 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack }) => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* SECCIÓN NUEVA: SUBIR CV */}
+      <div className="p-5 border-2 border-dashed border-indigo-200 rounded-3xl bg-indigo-50/30">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+            <FileText size={20} />
+          </div>
+          <h4 className="font-bold text-gray-800 text-sm">Adjuntar CV (Hoja de Vida)</h4>
+        </div>
+        
+        <input 
+          type="file" 
+          accept=".pdf" 
+          onChange={handleFileChange}
+          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"
+        />
+        <p className="text-[10px] text-gray-400 mt-2 italic">* Solo formato PDF (Máx. 5MB)</p>
       </div>
 
       {(data.experiencia_laboral || []).length < 3 && (
