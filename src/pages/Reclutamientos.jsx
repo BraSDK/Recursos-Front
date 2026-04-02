@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPostulantes, actualizarAsistencia, anularAsistencia } from '../services/postulanteService';
+import { getPostulantes, actualizarAsistencia, anularAsistencia, updatePostulante, updateFotoPostulante } from '../services/postulanteService';
 import DetallePostulanteModal from '../components/postulacion/DetallePostulanteModal';
 import ReclutamientoTable from '../components/reclutamientos/ReclutamientoTable';
 import EditarPostulanteModal from '../components/postulacion/EditarPostulanteModal';
@@ -86,7 +86,7 @@ const Reclutamientos = () => {
     try {
       setLoading(true);
       // Aquí llamarías a tu servicio de actualización, ej:
-      // await updatePostulante(datosEditados.id, datosEditados);
+      await updatePostulante(datosEditados.id, datosEditados);
       await cargarData();
       setShowEdit(false);
     } catch (error) {
@@ -95,6 +95,16 @@ const Reclutamientos = () => {
       setLoading(false);
     }
   };
+
+  const handleUpdateFoto = async (id, file) => {
+    try {
+        await updateFotoPostulante(id, file);
+        await cargarData(); // Refrescamos para que la foto aparezca en la tabla y modales
+    } catch (error) {
+        console.error(error);
+        alert("Error al subir la imagen");
+    }
+};
 
   return (
     <div className="p-6">
@@ -148,7 +158,7 @@ const Reclutamientos = () => {
         show={showDetalle} 
         onClose={() => setShowDetalle(false)} 
         postulante={selectedPostulante}
-        onUpdateFoto={async () => await cargarData()}
+        onUpdateFoto={handleUpdateFoto}
       />
 
       {/* Modal de Edición */}
@@ -157,6 +167,7 @@ const Reclutamientos = () => {
         onClose={() => setShowEdit(false)} 
         postulante={selectedPostulante}
         onUpdate={handleUpdatePostulante}
+        onUpdateFoto={handleUpdateFoto}
       />
 
       {/* Menú Flotante de Asistencia */}

@@ -48,3 +48,20 @@ export const anularAsistencia = async (id, numDia) => {
     });
     return response.data;
 };
+
+export const updatePostulante = async (id, datos) => {
+    const response = await api.put(`/postulantes/${id}`, datos);
+    return response.data;
+};
+
+export const updateFotoPostulante = async (id, file) => {
+    const formData = new FormData();
+    formData.append('foto', file);
+
+    const response = await api.post(`/postulantes/${id}/foto`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return response.data;
+};
