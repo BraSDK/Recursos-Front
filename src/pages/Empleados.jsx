@@ -1,16 +1,70 @@
 import { useEffect, useState } from 'react';
-import { getEmpleados, deleteEmpleado } from '../services/empleadoService';
+import { getEmpleados, deleteEmpleado, createEmpleado } from '../services/empleadoService';
+import ConfirmModal from '../components/shared/ConfirmModal';
+import { getPuestos } from '../services/puestoService';
 import EmpleadoModal from '../components/empleados/EmpleadoModal';
 import EmpleadoTable from '../components/empleados/EmpleadoTable'; // Nuevo
 import { Search, UserPlus } from 'lucide-react';
 
 const Empleados = () => {
   const [empleados, setEmpleados] = useState([]);
+  const [puestos, setPuestos] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [empleadoToDelete, setEmpleadoToDelete] = useState(null);
 
-  useEffect(() => { cargarData(); }, []);
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    cargarData();
+    cargarPuestos();
+  }, []);
+
+  const cargarPuestos = async () => {
+    try {
+      const res = await getPuestos();
+      // Si res ya es el array (porque en el service hiciste return response.data)
+      // asegúrate de que realmente sea un array lo que llega.
+      setPuestos(Array.isArray(res) ? res : res.data || []);
+    } catch (error) {
+      console.error("Error al cargar puestos:", error);
+      setPuestos([]); // En caso de error, dejamos un array vacío para que no rompa
+    }
+  };
+
+  const handleSave = async (datos) => {
+    try {
+      if (selectedEmpleado) {
+        // EDITAR (PUT)
+        await updateEmpleado(selectedEmpleado.id, datos);
+      } else {
+        // CREAR (POST)
+        await createEmpleado(datos);
+      }
+      setShowModal(false);
+      cargarData();
+    } catch (error) {
+      // Manejo de errores de validación de Laravel
+      alert("Error al guardar: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  // Esta función la recibe la Tabla
+  const handleOpenDelete = (id, nombre) => {
+    setEmpleadoToDelete({ id, nombre }); // Guardamos quién se va
+    setShowDeleteModal(true);            // Abrimos el modal
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteEmpleado(empleadoToDelete.id);
+      setShowDeleteModal(false);
+      cargarData();
+    } catch (error) {
+      alert("Error al eliminar");
+    }
+  };
 
   const cargarData = async () => {
     try {
@@ -23,13 +77,6 @@ const Empleados = () => {
   const handleOpenEdit = (emp) => {
     setSelectedEmpleado(emp);
     setShowModal(true);
-  };
-
-  const handleDelete = async (id, nombre) => {
-    if (window.confirm(`¿Eliminar a ${nombre}?`)) {
-      await deleteEmpleado(id);
-      cargarData(); // Refrescar
-    }
   };
 
   // Filtrado
@@ -65,14 +112,24 @@ const Empleados = () => {
       <EmpleadoTable 
         empleados={filtered} 
         onEdit={handleOpenEdit} 
-        onDelete={handleDelete} 
+        onDelete={handleOpenDelete} 
       />
 
       <EmpleadoModal 
         show={showModal} 
         onClose={() => setShowModal(false)} 
-        empleado={selectedEmpleado}
-        puestos={[]} // Luego traeremos esto de la API
+        onSave={handleSave} // Pasamos la función de guardado
+        empleado={selectedEmpleado} // Si es null, el modal estará vacío (Modo Crear)
+        puestos={puestos} // Pasamos la lista real de puestos de la BD
+      />
+
+      {/* El Modal vive aquí, una sola vez en toda la página */}
+      <ConfirmModal 
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar empleado?"
+        message={`¿Estás seguro de que deseas eliminar a ${empleadoToDelete?.nombre}? Esta acción es permanente.`}
       />
     </div>
   );
