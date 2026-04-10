@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getEmpleados, deleteEmpleado, createEmpleado } from '../services/empleadoService';
-import ConfirmModal from '../components/shared/ConfirmModal';
-import { getPuestos } from '../services/puestoService';
-import EmpleadoModal from '../components/empleados/EmpleadoModal';
-import EmpleadoTable from '../components/empleados/EmpleadoTable'; // Nuevo
 import { Search, UserPlus } from 'lucide-react';
+import { getPuestos } from '../services/puestoService';
+import { getEmpleados, deleteEmpleado, createEmpleado, cesarEmpleado, updateEmpleado } from '../services/empleadoService';
+import EmpleadoModal from '../components/empleados/EmpleadoModal';
+import EmpleadoTable from '../components/empleados/EmpleadoTable';
+import CeseEmpleadoModal from '../components/empleados/EmpleadoCeseModal';
 
 const Empleados = () => {
   const [empleados, setEmpleados] = useState([]);
@@ -12,8 +12,8 @@ const Empleados = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [empleadoToDelete, setEmpleadoToDelete] = useState(null);
+  const [showCeseModal, setShowCeseModal] = useState(false);
 
   // Cargar datos al montar el componente
   useEffect(() => {
@@ -53,16 +53,16 @@ const Empleados = () => {
   // Esta función la recibe la Tabla
   const handleOpenDelete = (id, nombre) => {
     setEmpleadoToDelete({ id, nombre }); // Guardamos quién se va
-    setShowDeleteModal(true);            // Abrimos el modal
+    setShowCeseModal(true);            // Abrimos el modal
   };
 
-  const confirmDelete = async () => {
+  const handleConfirmCese = async (datosCese) => {
     try {
-      await deleteEmpleado(empleadoToDelete.id);
-      setShowDeleteModal(false);
-      cargarData();
+      await cesarEmpleado(empleadoToDelete.id, datosCese);
+      setShowCeseModal(false);
+      cargarData(); // Refresca la tabla y verás al empleado como 'Inactivo'
     } catch (error) {
-      alert("Error al eliminar");
+      alert("Error al procesar la baja");
     }
   };
 
@@ -124,12 +124,11 @@ const Empleados = () => {
       />
 
       {/* El Modal vive aquí, una sola vez en toda la página */}
-      <ConfirmModal 
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
-        title="¿Eliminar empleado?"
-        message={`¿Estás seguro de que deseas eliminar a ${empleadoToDelete?.nombre}? Esta acción es permanente.`}
+      <CeseEmpleadoModal 
+        show={showCeseModal}
+        onClose={() => setShowCeseModal(false)}
+        onConfirm={handleConfirmCese}
+        empleadoNombre={empleadoToDelete?.nombre || ""}
       />
     </div>
   );

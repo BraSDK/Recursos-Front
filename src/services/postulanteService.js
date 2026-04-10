@@ -65,3 +65,32 @@ export const updateFotoPostulante = async (id, file) => {
     });
     return response.data;
 };
+
+/**
+ * Obtiene los postulantes que están en estado 'gestion' (aptos) 
+ * y que aún no han sido registrados como empleados.
+ */
+export const getPendientesContratacion = async () => {
+    try {
+        // En el backend crearemos este endpoint o usaremos un filtro en index
+        const response = await api.get('/postulantes/pendientes-alta');
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener pendientes:", error);
+        throw error;
+    }
+};
+
+/**
+ * Obtiene la data formateada de un postulante para pre-llenar 
+ * el formulario de nuevo empleado.
+ */
+export const getPostulantePrecontratacion = async (id) => {
+    try {
+        const response = await api.get(`/postulantes/${id}/pre-alta`);
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener data de pre-alta:", error);
+        throw error;
+    }
+};

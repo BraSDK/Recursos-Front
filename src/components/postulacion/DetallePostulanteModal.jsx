@@ -1,9 +1,10 @@
-import { X, User, Briefcase, GraduationCap, Phone, HeartPulse, Camera } from "lucide-react";
+import { X, User, Briefcase, GraduationCap, Phone, HeartPulse, Camera, FileText, ExternalLink, Maximize2 } from "lucide-react";
 import { estadoColors, turnoColors } from '@/constants/reclutamiento';
 import { useState } from "react";
 
 const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => {
   const [uploading, setUploading] = useState(false);
+  const [showCV, setShowCV] = useState(false);
 
   if (!show || !postulante) return null;
 
@@ -15,6 +16,9 @@ const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => 
     await onUpdateFoto(postulante.id, file);
     setUploading(false);
   };
+
+  // URL del archivo
+  const pdfUrl = `http://sistema-rrhh.test/storage/${postulante.cv_path}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -41,7 +45,7 @@ const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => 
         <div className="flex-1 overflow-y-auto p-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             
-            {/* Columna Izquierda: Foto y Perfil Rápido */}
+            {/* Columna Izquierda: Foto, Estado y CV */}
             <div className="space-y-6">
               <div className="relative group mx-auto w-48 h-48">
                 <div className="w-full h-full rounded-3xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
@@ -58,14 +62,43 @@ const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => 
                 </label>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-2xl space-y-2">
-                <p className="text-xs font-bold text-gray-400 uppercase">Estado Actual</p>
-                <span className={`inline-block px-3 py-1 ${estadoColors[postulante.estado_proceso] || 'bg-gray-50'} rounded-lg text-sm font-bold uppercase`}>
-                  {postulante.estado_proceso}
-                </span>
-                {postulante.es_reingreso && (
-                   <p className="text-xs text-orange-600 font-bold mt-2">⚠️ ATENCIÓN: REINGRESO DETECTADO</p>
-                )}
+              {/* Bloque de Estado y CV */}
+              <div className="space-y-3">
+                <div className="bg-gray-50 p-5 rounded-3xl border border-gray-100">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Gestión de Proceso</p>
+                  
+                  {/* Estado Badge */}
+                  <div className={`w-full py-2 px-4 rounded-xl text-center text-sm font-bold uppercase mb-3 ${estadoColors[postulante.estado_proceso] || 'bg-gray-100 text-gray-600'}`}>
+                    {postulante.estado_proceso}
+                  </div>
+
+                  {/* SECCIÓN DEL CV PROFESIONAL */}
+                  <div className="pt-3 border-t border-gray-200">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Documentación</p>
+                    {postulante.cv_path ? (
+                    <button 
+                      onClick={() => setShowCV(true)} 
+                      className="w-full group flex items-center justify-between p-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText size={18} className="text-indigo-200" />
+                        <span className="text-sm font-bold">Ver Currículum</span>
+                      </div>
+                      <Maximize2 size={16} className="text-indigo-200 group-hover:scale-110 transition-transform" />
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 bg-gray-200 text-gray-500 rounded-2xl opacity-60 italic text-xs">
+                      <FileText size={18} /> Sin CV Adjunto
+                    </div>
+                  )}
+                  </div>
+
+                  {postulante.es_reingreso && (
+                    <div className="mt-4 p-3 bg-orange-50 border border-orange-100 rounded-xl">
+                      <p className="text-[10px] text-orange-600 font-black text-center">⚠️ ALERTA: REINGRESO</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -119,6 +152,22 @@ const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => 
             Cerrar Ficha
           </button>
         </div>
+
+        {/* --- VISOR DE PDF FLOTANTE (AL FINAL PARA Z-INDEX) --- */}
+        {showCV && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+            <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-md" onClick={() => setShowCV(false)} />
+            <div className="relative bg-white w-full max-w-5xl h-full rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in duration-300">
+              <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+                <span className="font-bold text-gray-800 flex items-center gap-2"><FileText size={20} className="text-indigo-600"/> CV: {postulante.nombres}</span>
+                <button onClick={() => setShowCV(false)} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><X size={20}/></button>
+              </div>
+              <div className="flex-1 bg-gray-100">
+                <iframe src={`${pdfUrl}#toolbar=0`} className="w-full h-full border-none" title="Visor CV" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
