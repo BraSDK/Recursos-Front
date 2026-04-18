@@ -1,4 +1,4 @@
-import { X, User, Briefcase, GraduationCap, Phone, HeartPulse, Camera, FileText, ExternalLink, Maximize2 } from "lucide-react";
+import { X, User, Briefcase, GraduationCap, Phone, HeartPulse, Camera, FileText, ExternalLink, Maximize2, Clock  } from "lucide-react";
 import { estadoColors, turnoColors } from '@/constants/reclutamiento';
 import { useState } from "react";
 
@@ -26,14 +26,22 @@ const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => 
       
       <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl z-10 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-20">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+            <div className="p-3 bg-red-600 rounded-2xl text-white shadow-lg shadow-red-100">
               <User size={24} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-900">Ficha del Postulante</h3>
-              <p className="text-sm text-gray-500">DNI: {postulante.dni}</p>
+              <h3 className="text-xl font-black text-gray-900 leading-tight">
+                {postulante.nombres} {postulante.apellido_paterno}
+              </h3>
+              {/* Etiqueta de Puesto en el Header */}
+              <div className="flex items-center gap-2 mt-0.5">
+                <Briefcase size={14} className="text-red-600" />
+                <span className="text-xs font-black text-red-600 uppercase tracking-tighter">
+                  Postula a: {postulante.puesto?.nombre_puesto || 'Cargo no definido'}
+                </span>
+              </div>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
@@ -72,6 +80,21 @@ const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => 
                     {postulante.estado_proceso}
                   </div>
 
+                  {/* PRETENSION SALARIAL */}
+                  {postulante.salario_sugerido && (
+                    <div className="flex items-center justify-between p-3 bg-white rounded-2xl border border-green-100 mb-3 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-green-50 text-green-600 rounded-lg">
+                          <DollarSign size={16} />
+                        </div>
+                        <span className="text-[10px] font-black text-gray-400 uppercase">Pretensión</span>
+                      </div>
+                      <span className="text-sm font-bold text-green-700">
+                        S/ {Number(postulante.salario_sugerido).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
                   {/* SECCIÓN DEL CV PROFESIONAL */}
                   <div className="pt-3 border-t border-gray-200">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Documentación</p>
@@ -104,16 +127,60 @@ const DetallePostulanteModal = ({ show, onClose, postulante, onUpdateFoto }) => 
 
             {/* Columna Derecha: Información Detallada */}
             <div className="md:col-span-2 space-y-8">
+
+            {/* --- BLOQUE DESTACADO: Puesto y Disponibilidad --- */}
+            <div className="bg-gray-50/50 p-6 rounded-[2rem] border border-gray-100 animate-in fade-in slide-in-from-top-4 duration-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">Puesto Solicitado</p>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />
+                    <h4 className="text-lg font-black text-gray-800 uppercase leading-none">
+                      {postulante.puesto?.nombre_puesto}
+                    </h4>
+                  </div>
+                  <p className="text-[11px] text-indigo-600 font-bold uppercase">
+                    Área: {postulante.puesto?.departamento?.nombre || 'General'}
+                  </p>
+                </div>
+
+                <div className="space-y-1 sm:border-l sm:border-gray-200 sm:pl-8">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">Disponibilidad</p>
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} className="text-gray-600" />
+                    <h4 className="text-lg font-bold text-gray-800 uppercase leading-none">
+                      {postulante.horario_interes}
+                    </h4>
+                  </div>
+                  <p className="text-[11px] text-gray-500 font-medium">
+                    Ubicación: {postulante.distrito}
+                  </p>
+                </div>
+              </div>
+            </div>
+
               {/* Seccion 1: Datos Personales */}
               <section>
-                <h4 className="flex items-center gap-2 font-bold text-gray-900 mb-4">
+                <h4 className="flex items-center gap-2 font-bold text-gray-900 mb-4 uppercase text-xs tracking-widest">
                   <User size={18} className="text-indigo-600" /> Datos Personales
                 </h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><p className="text-gray-400">Nombres y Apellidos</p><p className="font-medium">{postulante.nombres} {postulante.apellido_paterno} {postulante.apellido_materno}</p></div>
-                  <div><p className="text-gray-400">Edad / Sexo</p><p className="font-medium">{postulante.edad} años / {postulante.sexo}</p></div>
-                  <div><p className="text-gray-400">Domicilio</p><p className="font-medium">{postulante.direccion}, {postulante.distrito}</p></div>
-                  <div><p className="text-gray-400">Turno Interés</p><p className={`inline-block px-3 ${turnoColors[postulante.horario_interes] || 'bg-gray-50'} uppercase`}>{postulante.horario_interes}</p></div>
+                <div className="grid grid-cols-2 gap-6 text-sm bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nombres y Apellidos</p>
+                    <p className="font-bold text-gray-800">{postulante.nombres} {postulante.apellido_paterno} {postulante.apellido_materno}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Edad / Sexo</p>
+                    <p className="font-bold text-gray-800">{postulante.edad} años / {postulante.sexo === 'M' ? 'Masculino' : 'Femenino'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Domicilio</p>
+                    <p className="font-bold text-gray-800">{postulante.direccion}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Referencia</p>
+                    <p className="font-bold text-gray-800">{postulante.distrito}</p>
+                  </div>
                 </div>
               </section>
 

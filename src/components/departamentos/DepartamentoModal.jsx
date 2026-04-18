@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { X, Building2, Hash, PlusCircle } from "lucide-react";
+import { X, Building2, Hash, Layers, PlusCircle } from "lucide-react";
 
 const DepartamentoModal = ({ show, onClose, onSave, departamento }) => {
   const [formData, setFormData] = useState({
     nombre_departamento: "", // Nombre que espera el controlador
-    codigo_dep: ""
+    codigo_dep: "",
+    area_general: "administrativo"
   });
 
   const [isRendered, setIsRendered] = useState(false);
@@ -15,10 +16,11 @@ const DepartamentoModal = ({ show, onClose, onSave, departamento }) => {
       if (departamento) {
         setFormData({
           nombre_departamento: departamento.nombre, // Mapeamos de 'nombre' a 'nombre_departamento'
-          codigo_dep: departamento.codigo_dep
+          codigo_dep: departamento.codigo_dep,
+          area_general: departamento.area_general || "administrativo"
         });
       } else {
-        setFormData({ nombre_departamento: "", codigo_dep: "" });
+        setFormData({ nombre_departamento: "", codigo_dep: "", area_general: "administrativo" });
       }
     } else {
       const timer = setTimeout(() => setIsRendered(false), 200);
@@ -79,7 +81,50 @@ const DepartamentoModal = ({ show, onClose, onSave, departamento }) => {
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="space-y-3">
+            <label className="text-sm font-bold text-gray-700 ml-1 flex items-center gap-2">
+              <Layers size={16} className="text-indigo-500" /> 
+              Área General (Configura el Formulario Público)
+            </label>
+            
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { id: 'administrativo', label: 'Admin', icon: <Building2 size={16}/>, color: 'orange' },
+                { id: 'ventas', label: 'Ventas', icon: <PlusCircle size={16}/>, color: 'blue' },
+                { id: 'operaciones', label: 'Operaciones', icon: <Hash size={16}/>, color: 'purple' }
+              ].map((opcion) => (
+                <button
+                  key={opcion.id}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, area_general: opcion.id })}
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all duration-200 group ${
+                    formData.area_general === opcion.id
+                      ? `border-${opcion.color}-500 bg-${opcion.color}-50 text-${opcion.color}-700 shadow-sm`
+                      : "border-gray-100 bg-gray-50 text-gray-500 hover:border-gray-200 hover:bg-white"
+                  }`}
+                >
+                  <div className={`mb-1.5 p-2 rounded-lg transition-colors ${
+                    formData.area_general === opcion.id 
+                      ? `bg-white text-${opcion.color}-600` 
+                      : "bg-gray-200/50 text-gray-400 group-hover:bg-gray-200"
+                  }`}>
+                    {opcion.icon}
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-tight">
+                    {opcion.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+            
+            {/* Pequeño texto informativo según la selección */}
+            <p className="text-[10px] text-gray-400 italic px-1">
+              * Los postulantes de esta área verán el formulario de tipo 
+              <span className="font-bold text-indigo-500"> {formData.area_general}</span>.
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-gray-50">
             <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all">
               Cancelar
             </button>

@@ -4,6 +4,7 @@ import Empleados from './pages/Empleados';
 import Puestos from './pages/Puestos';
 import Departamentos from './pages/Departamentos';
 import Reclutamientos from './pages/Reclutamientos';
+import PreSelecciones from './pages/PreSeleccion';
 import FormularioPostulante from './pages/FormularioPostulante';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/puestos" element={<Puestos />} />
                 <Route path="/departamentos" element={<Departamentos />} />
                 <Route path="/reclutamientos" element={<Reclutamientos />} />
+                <Route path="/pre-seleccion" element={<PreSelecciones />} />
               </Routes>
             </Layout>
           }

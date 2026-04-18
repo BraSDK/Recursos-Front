@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, Briefcase, Building2, Calculator, CalendarCheck, UserPlus, Home } from 'lucide-react';
+import { Users, Briefcase, Building2, Calculator, CalendarCheck, UserPlus, UserCheck, Home } from 'lucide-react';
 import Header from './layout/Header'; // Importamos tu nuevo Header
 import PendientesContratacionModal from './postulacion/PendientesContratacionModal';
 import EmpleadoModal from './empleados/EmpleadoModal';
@@ -85,6 +85,11 @@ const Layout = ({ children }) => {
           <Link to="/" className={`flex items-center px-6 py-3 transition-all ${isActive('/')}`}>
             <Home className="w-5 h-5 mr-3" /> Dashboard
           </Link>
+
+          <Link to="/pre-seleccion" className={`flex items-center px-6 py-3 transition-all ${isActive('/pre-seleccion')}`}>
+            <UserCheck className="w-5 h-5 mr-3" /> Pre-Selección
+          </Link>
+
           <div className="px-6 py-4">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Gestión de Talento</p>
           </div>

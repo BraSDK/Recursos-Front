@@ -1,6 +1,23 @@
-import { Briefcase, Plus, Trash2, Calendar, FileText, Phone } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getPuestosPorDepartamento } from '@/services/puestoService';
+import { Briefcase, Plus, Trash2, Calendar, FileText, Phone, DollarSign, ChevronDown } from 'lucide-react';
 
-const Paso4Experiencia = ({ data, setData, onNext, onBack }) => {
+const Paso4Experiencia = ({ data, setData, onNext, onBack, areaGeneral, departamentoId }) => {
+  const [puestosRelacionados, setPuestosRelacionados] = useState([]);
+  
+  useEffect(() => {
+    const cargarPuestos = async () => {
+      if (departamentoId) {
+        try {
+          const res = await getPuestosPorDepartamento(departamentoId);
+          setPuestosRelacionados(res);
+        } catch (error) {
+          console.error("Error al cargar puestos relacionados", error);
+        }
+      }
+    };
+    cargarPuestos();
+  }, [departamentoId]);
   
   const agregarExperiencia = () => {
     // Aseguramos que trabajamos con un array
@@ -127,6 +144,23 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack }) => {
         ))}
       </div>
 
+      {/* Solo mostramos si NO es ventas */}
+      {areaGeneral !== 'ventas' && (
+        <div className="space-y-1.5 animate-in slide-in-from-left duration-500">
+          <label className="text-xs font-black text-gray-500 ml-1">PRETENSIONES SALARIALES (S/.)</label>
+          <div className="relative">
+            <span className="absolute left-4 top-3.5 text-gray-400 font-bold">S/</span>
+            <input 
+              type="number"
+              placeholder="Monto deseado"
+              className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-red-600 font-bold"
+              value={data.salario_sugerido}
+              onChange={(e) => setData({...data, salario_sugerido: e.target.value})}
+            />
+          </div>
+        </div>
+      )}
+
       {/* SECCIÓN NUEVA: SUBIR CV */}
       <div className="p-5 border-2 border-dashed border-indigo-200 rounded-3xl bg-indigo-50/30">
         <div className="flex items-center gap-3 mb-3">
@@ -153,6 +187,38 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack }) => {
           <Plus size={20} /> Añadir empleo
         </button>
       )}
+
+      {/* SECCIÓN: PUESTO DE INTERÉS (FILTRADO) */}
+      <div className="p-6 bg-gray-50 border-2 border-gray-100 rounded-[2rem] space-y-3 mt-4 animate-in fade-in duration-700">
+        <label className="flex items-center gap-2 text-xs font-black text-gray-600 uppercase tracking-widest ml-1">
+          <Briefcase size={14} className="text-red-600" /> ¿A qué puesto deseas postular?
+        </label>
+        
+        <div className="relative group">
+          <select 
+            className="w-full px-4 py-4 bg-white border-2 border-gray-100 rounded-2xl outline-none focus:border-red-600 font-bold text-gray-700 appearance-none shadow-sm transition-all"
+            value={data.puesto_id || ''}
+            onChange={(e) => setData({ ...data, puesto_id: e.target.value })}
+            required
+          >
+            <option value="">Selecciona una opción</option>
+            {puestosRelacionados.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nombre_puesto}
+              </option>
+            ))}
+          </select>
+          
+          {/* Icono de flecha personalizada */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-focus-within:text-red-600">
+            <ChevronDown size={20} />
+          </div>
+        </div>
+
+        <p className="text-[10px] text-gray-400 font-bold italic px-1">
+          * Solo se muestran vacantes disponibles para el área de <span className="text-red-600 uppercase">{areaGeneral}</span>.
+        </p>
+      </div>
 
       <div className="flex gap-3 pt-4">
         <button 

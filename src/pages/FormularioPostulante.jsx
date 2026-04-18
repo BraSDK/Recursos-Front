@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { registrarPostulacion } from '../services/postulanteService';
+import Paso0Acceso from '../components/postulacion/pasos/Paso0Acceso';
 import Paso1Personal from '../components/postulacion/pasos/Paso1Personal';
 import Paso2Contacto from '../components/postulacion/pasos/Paso2Contacto';
 import Paso3Academico from '../components/postulacion/pasos/Paso3Academico';
@@ -9,8 +10,10 @@ import Paso5Adicionales from '../components/postulacion/pasos/Paso5Adicionales';
 
 const FormularioPostulante = () => {
   const { puestoId } = useParams();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [areaGeneral, setAreaGeneral] = useState(null);
+  const [departamentoId, setDepartamentoId] = useState(null);
   const [formData, setFormData] = useState({
       puesto_id: puestoId,
       dni: '',              
@@ -31,6 +34,7 @@ const FormularioPostulante = () => {
       emergencia_telefono: '',
       motivo_laborar: '',
       horario_interes: '',
+      salario_sugerido: '',
       formacion_academica: [],
       experiencia_laboral: [],
       tiene_hijos: false,
@@ -40,6 +44,18 @@ const FormularioPostulante = () => {
 
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
+
+  const handleValidationSuccess = (dataPre) => {
+    setFormData(prev => ({
+        ...prev,
+        dni: dataPre.dni,
+        nombres: dataPre.nombre_completo,
+        puesto_id: dataPre.puesto_id // El puesto pre-seleccionado
+    }));
+    setDepartamentoId(dataPre.puesto.departamento_id);
+    setAreaGeneral(dataPre.puesto.departamento.area_general);
+    setStep(1);
+  };
 
   const handleFinalSubmit = async () => {
     setLoading(true);
@@ -63,11 +79,13 @@ const FormularioPostulante = () => {
                style={{ width: `${(step / 5) * 100}%` }}></div>
         )}
 
-        <div className="p-6">
+        <div className="p-8">
+          {step === 0 && <Paso0Acceso onValidated={handleValidationSuccess} />}
+
           {step === 1 && <Paso1Personal data={formData} setData={setFormData} onNext={nextStep} />}
           {step === 2 && <Paso2Contacto data={formData} setData={setFormData} onNext={nextStep} onBack={prevStep} />}
           {step === 3 && <Paso3Academico data={formData} setData={setFormData} onNext={nextStep} onBack={prevStep} />}
-          {step === 4 && <Paso4Experiencia data={formData} setData={setFormData} onNext={nextStep} onBack={prevStep} />}
+          {step === 4 && <Paso4Experiencia data={formData} setData={setFormData} onNext={nextStep} onBack={prevStep} areaGeneral={areaGeneral} departamentoId={departamentoId} />}
           {step === 5 && <Paso5Adicionales data={formData} setData={setFormData} onConfirm={handleFinalSubmit} onBack={prevStep} loading={loading} />}
           
           {step === 6 && (

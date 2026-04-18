@@ -4,6 +4,8 @@ import { getDepartamentos } from '../services/departamentoService'; // Necesario
 import PuestoTable from '../components/puestos/PuestoTable';
 import PuestoModal from '../components/puestos/PuestoModal';
 import ConfirmModal from '../components/shared/ConfirmModal';
+import PuestoFilters from '../components/puestos/PuestoFilters';
+import Pagination from '../components/shared/Pagination';
 import { Search, Briefcase } from 'lucide-react';
 
 const Puestos = () => {
@@ -14,17 +16,37 @@ const Puestos = () => {
   const [selectedPuesto, setSelectedPuesto] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [puestoToDelete, setPuestoToDelete] = useState(null);
+  const [selectedDep, setSelectedDep] = useState("");
 
+  // ESTADOS DE PAGINACIÓN
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  // Cargamos departamentos solo una vez al inicio
   useEffect(() => {
-    cargarData();
     cargarDepartamentos();
   }, []);
 
+  // Recargamos data cada vez que cambie un filtro
+  useEffect(() => {
+    cargarData();
+  }, [searchTerm, selectedDep, currentPage]);
+
   const cargarData = async () => {
     try {
-      const data = await getPuestos();
-      setPuestos(data);
-    } catch (error) { console.error(error); }
+      // Enviamos los filtros directamente a la API
+      const response = await getPuestos({ 
+        search: searchTerm, 
+        departamento_id: selectedDep,
+        page: currentPage
+      });
+
+      // Ajustamos según la respuesta de Laravel Paginate
+      setPuestos(response.data);
+      setTotalPages(response.last_page);
+      setTotalRecords(response.total);
+    } catch (error) { console.error("Error cargando puestos:", error); }
   };
 
   const cargarDepartamentos = async () => {
@@ -64,6 +86,17 @@ const Puestos = () => {
     p.nombre_puesto.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Resetear página al buscar o filtrar
+  const handleSearchChange = (val) => {
+    setSearchTerm(val);
+    setCurrentPage(1);
+  };
+
+  const handleDepChange = (val) => {
+    setSelectedDep(val);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -76,20 +109,26 @@ const Puestos = () => {
         </button>
       </div>
 
-      <div className="mb-4 relative">
-        <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
-        <input 
-          type="text" 
-          placeholder="Buscar puesto..." 
-          className="pl-10 w-full border border-gray-300 rounded-lg p-2 outline-none focus:ring-2 focus:ring-blue-500/20"
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      <PuestoFilters 
+        searchTerm={searchTerm} 
+        setSearchTerm={handleSearchChange}
+        selectedDep={selectedDep}
+        setSelectedDep={handleDepChange}
+        departamentos={departamentos}
+      />
 
       <PuestoTable 
-        puestos={filtered} 
+        puestos={puestos} 
         onEdit={(p) => { setSelectedPuesto(p); setShowModal(true); }} 
         onDelete={handleOpenDelete} 
+      />
+
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        currentRecordsCount={puestos.length}
+        onPageChange={(page) => setCurrentPage(page)}
       />
 
       <PuestoModal 
