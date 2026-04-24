@@ -28,8 +28,8 @@ export const registrarPostulacion = async (datos) => {
 };
 
 // Esta función la usará el reclutador en el panel administrativo
-export const getPostulantes = async () => {
-    const response = await api.get('/postulantes');
+export const getPostulantes = async (page = 1, search = "") => {
+    const response = await api.get(`/postulantes?page=${page}&search=${search}`);
     return response.data;
 };
 

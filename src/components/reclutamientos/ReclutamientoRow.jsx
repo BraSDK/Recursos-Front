@@ -2,10 +2,20 @@ import { CheckCircle2, XCircle, Eye, Edit } from 'lucide-react';
 import { obtenerEstadoDia } from '@/utils/reclutamientoUtils';
 import { estadoColors, turnoColors } from '@/constants/reclutamiento';
 
-const ReclutamientoRow = ({ post, index, onAsistencia, onOpenDetalle, onOpenEdit }) => {
+const ReclutamientoRow = ({ post, index, onAsistencia, onOpenDetalle, onOpenEdit, isSelected, onToggleSelect }) => {
   return (
-    <tr className={`hover:bg-gray-50 transition-colors ${post.estado_proceso === 'no_apto' ? 'bg-red-50/20' : ''}`}>
+    <tr className={`transition-colors ${isSelected ? 'bg-indigo-50/30' : 'hover:bg-gray-50'} ${post.estado_proceso === 'no_apto' ? 'bg-red-50/20' : ''}`}>
       
+      {/* Checkbox de selección */}
+      <td className="px-4 py-4 text-center">
+        <input 
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onToggleSelect([post.id])}
+          className="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+        />
+      </td>
+
       {/* N° */}
       <td className="px-4 py-4 text-center text-xs font-medium text-gray-400">
         {index + 1}

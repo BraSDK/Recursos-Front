@@ -209,10 +209,6 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack, areaGeneral, departam
             ))}
           </select>
           
-          {/* Icono de flecha personalizada */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-focus-within:text-red-600">
-            <ChevronDown size={20} />
-          </div>
         </div>
 
         <p className="text-[10px] text-gray-400 font-bold italic px-1">

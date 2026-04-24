@@ -1,6 +1,6 @@
 import ReclutamientoRow from './ReclutamientoRow';
 
-const ReclutamientoTable = ({ postulantes, onAsistencia, onOpenDetalle, onOpenEdit, loading }) => {
+const ReclutamientoTable = ({ postulantes, selectedIds, onToggleSelect, onAsistencia, onOpenDetalle, onOpenEdit, loading }) => {
   if (loading) return <div className="text-center py-10 text-gray-500 font-medium italic">Cargando postulantes...</div>;
 
   return (
@@ -9,6 +9,18 @@ const ReclutamientoTable = ({ postulantes, onAsistencia, onOpenDetalle, onOpenEd
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+              {/* Checkbox Maestro */}
+              <th className="px-4 py-4 text-center">
+                <input 
+                  type="checkbox"
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  checked={postulantes.length > 0 && selectedIds.length === postulantes.length}
+                  onChange={(e) => {
+                    const allIds = postulantes.map(p => p.id);
+                    onToggleSelect(e.target.checked ? allIds : []);
+                  }}
+                />
+              </th>
               <th className="px-4 py-4 text-center text-[10px] font-bold text-gray-500 uppercase">N°</th>
               <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Postulante</th>
               <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Estado</th>
@@ -29,12 +41,14 @@ const ReclutamientoTable = ({ postulantes, onAsistencia, onOpenDetalle, onOpenEd
                   index={index} 
                   onAsistencia={onAsistencia} 
                   onOpenDetalle={onOpenDetalle} 
+                  isSelected={selectedIds.includes(post.id)}
+                  onToggleSelect={onToggleSelect}
                   onOpenEdit={onOpenEdit}
                 />
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="px-6 py-12 text-center text-gray-500 italic">No hay postulantes registrados.</td>
+                <td colSpan="10" className="px-6 py-12 text-center text-gray-500 italic">No hay postulantes registrados.</td>
               </tr>
             )}
           </tbody>
