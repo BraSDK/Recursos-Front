@@ -159,7 +159,7 @@ const Reclutamientos = () => {
     }
 };
 
-
+console.log("Postulante Ejemplo:", filtered[0]?.nombres, "Asistencias:", filtered[0]?.procesos_seleccion);
   return (
     <div className="p-6">
       {/* Header Principal */}

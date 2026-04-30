@@ -2,7 +2,20 @@ import { CheckCircle2, XCircle, Eye, Edit } from 'lucide-react';
 import { obtenerEstadoDia } from '@/utils/reclutamientoUtils';
 import { estadoColors, turnoColors } from '@/constants/reclutamiento';
 
-const ReclutamientoRow = ({ post, index, onAsistencia, onOpenDetalle, onOpenEdit, isSelected, onToggleSelect }) => {
+const formatFecha = (fecha) => {
+  if (!fecha) return '-';
+  const d = new Date(fecha);
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
+};
+
+const ReclutamientoRow = ({ post, index, diasCapacitacion, onAsistencia, onOpenDetalle, onOpenEdit, isSelected, onToggleSelect }) => {
+
+  const arrayDias = Array.from({ length: diasCapacitacion }, (_, i) => i + 1);
+
+  const fechaFin = post.estado_proceso === 'no_apto' || post.estado_proceso === 'gestion' 
+    ? post.updated_at 
+    : null;
+
   return (
     <tr className={`transition-colors ${isSelected ? 'bg-indigo-50/30' : 'hover:bg-gray-50'} ${post.estado_proceso === 'no_apto' ? 'bg-red-50/20' : ''}`}>
       
@@ -19,6 +32,26 @@ const ReclutamientoRow = ({ post, index, onAsistencia, onOpenDetalle, onOpenEdit
       {/* N° */}
       <td className="px-4 py-4 text-center text-xs font-medium text-gray-400">
         {index + 1}
+      </td>
+
+      {/* FECHA DE REGISTRO */}
+      <td className="px-4 py-4">
+        <div className="flex flex-col">
+          <span className="text-[11px] font-bold text-gray-700">
+            {formatFecha(post.created_at)}
+          </span>
+          <span className="text-[9px] text-gray-400 uppercase">Ingreso</span>
+        </div>
+      </td>
+
+      {/* FECHA DE CIERRE (SALIDA O PASE) */}
+      <td className="px-4 py-4">
+        <div className="flex flex-col">
+          <span className={`text-[11px] font-bold ${post.estado_proceso === 'no_apto' ? 'text-red-500' : 'text-green-600'}`}>
+            {formatFecha(fechaFin)}
+          </span>
+          <span className="text-[9px] text-gray-400 uppercase">Final</span>
+        </div>
       </td>
 
       {/* Postulante */}
@@ -61,12 +94,9 @@ const ReclutamientoRow = ({ post, index, onAsistencia, onOpenDetalle, onOpenEdit
         </span>
       </td>
 
-      {/* Días de Asistencia */}
-      {[1, 2, 3, 4].map(dia => {
+      {/* Días de Asistencia Dinámicos */}
+      {arrayDias.map(dia => {
         const estadoReal = obtenerEstadoDia(post, dia);
-
-        // Lógica de bloqueo: Verificamos si el día anterior está 'asistio'
-        // Si dia es 1, el anterior se considera 'asistio' por defecto para no bloquearse
         const diaAnteriorEstado = dia > 1 ? obtenerEstadoDia(post, dia - 1) : 'asistio';
         const estaBloqueado = diaAnteriorEstado !== 'asistio';
 

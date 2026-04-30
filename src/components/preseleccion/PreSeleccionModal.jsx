@@ -11,15 +11,29 @@ const PreSeleccionModal = ({ show, onClose, onSave, invitacion, puestos }) => {
 
   const [isRendered, setIsRendered] = useState(false);
 
+  // EFECTO 1: Sincronización cuando los puestos llegan tarde
+  // Este solo actúa si el modal está abierto y tenemos una invitación pero el puesto_id quedó vacío
+  useEffect(() => {
+    if (show && invitacion && puestos.length > 0 && !formData.puesto_id) {
+      setFormData(prev => ({
+        ...prev,
+        puesto_id: invitacion.puesto_id
+      }));
+    }
+  }, [puestos, invitacion, show]);
+
+  // EFECTO 2: Reset o Carga inicial al abrir/cerrar
   useEffect(() => {
     if (show) {
       setIsRendered(true);
       if (invitacion) {
         setFormData({
-          dni: invitacion.dni,
-          nombre_completo: invitacion.nombre_completo,
-          puesto_id: invitacion.puesto_id,
-          estado: invitacion.estado
+          dni: invitacion.dni || "",
+          nombre_completo: invitacion.nombre_completo || "",
+          // Si puestos aún no carga, guardamos el ID de todas formas para que el select 
+          // lo reconozca apenas el map se renderice
+          puesto_id: invitacion.puesto_id || "", 
+          estado: invitacion.estado || "pendiente"
         });
       } else {
         setFormData({ dni: "", nombre_completo: "", puesto_id: "", estado: "pendiente" });
@@ -28,7 +42,7 @@ const PreSeleccionModal = ({ show, onClose, onSave, invitacion, puestos }) => {
       const timer = setTimeout(() => setIsRendered(false), 200);
       return () => clearTimeout(timer);
     }
-  }, [invitacion, show]);
+  }, [show, invitacion]); // Quitamos dependencias innecesarias para evitar bucles
 
   if (!isRendered && !show) return null;
 
@@ -90,11 +104,16 @@ const PreSeleccionModal = ({ show, onClose, onSave, invitacion, puestos }) => {
                 required
               >
                 <option value="">Selecciona puesto</option>
-                {puestos.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre_puesto} - ({p.departamento?.nombre})
-                  </option>
-                ))}
+                {/* Validamos que puestos sea un array y tenga contenido */}
+                {Array.isArray(puestos) && puestos.length > 0 ? (
+                  puestos.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre_puesto} - {p.departamento?.nombre || 'Sin Departamento'}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>Cargando puestos...</option>
+                )}
               </select>
             </div>
           </div>

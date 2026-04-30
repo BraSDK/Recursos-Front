@@ -43,9 +43,17 @@ const PreSelecciones = () => {
 
   const cargarPuestos = async () => {
     try {
-      const data = await getPuestos();
-      setPuestos(data);
-    } catch (error) { console.error(error); }
+      const response = await getPuestos();
+      // Si la respuesta tiene la propiedad 'data' (paginación), guardamos solo el array
+      const listaPuestos = response.data && Array.isArray(response.data) 
+        ? response.data 
+        : response; 
+        
+      setPuestos(listaPuestos);
+    } catch (error) { 
+      console.error("Error al cargar puestos:", error);
+      setPuestos([]); 
+    }
   };
 
   const handleTabChange = (tabId) => {

@@ -17,13 +17,13 @@ export const updatePreSeleccion = async (id, datos) => {
     return response.data;
 };
 
-export const deletePreSeleccion = async (id) => {
-    const response = await api.delete(`/pre-selecciones/${id}`);
-    return response.data;
-};
-
 // Nueva ruta pública para el validador
 export const verificarDniPublico = async (dni) => {
     const response = await api.get(`/public/verificar-dni/${dni}`);
+    return response.data;
+};
+
+export const deletePreSeleccion = async (id) => {
+    const response = await api.delete(`/pre-selecciones/${id}`);
     return response.data;
 };

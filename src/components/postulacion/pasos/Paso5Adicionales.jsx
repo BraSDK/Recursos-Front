@@ -102,15 +102,28 @@ const Paso5Adicionales = ({ data, setData, onConfirm, onBack, loading }) => {
         <div className="space-y-1">
           <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Turno de Interés</label>
           <select 
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
             value={data.horario_interes || ''}
             onChange={(e) => setData({...data, horario_interes: e.target.value})}
             required
           >
-            <option value="">Selecciona turno</option>
-            <option value="Mañana">Mañana</option>
-            <option value="Tarde">Tarde</option>
-            <option value="Noche">Noche</option>
+            <option value="">Selecciona turno específico</option>
+            
+            <optgroup label="Mañana - Full Time">
+              <option value="Mañana - Full Time (7am a 12am)">7am a 12am</option>
+              <option value="Mañana - Full Time (7am a 1pm)">7am a 1pm</option>
+              <option value="Mañana - Full Time (8am a 12pm)">8am a 12pm</option>
+              <option value="Mañana - Full Time (8am a 1pm)">8am a 1pm</option>
+            </optgroup>
+            
+            <optgroup label="Tarde - Part Time">
+              <option value="Tarde - Part Time (1pm a 6pm)">1pm a 6pm</option>
+              <option value="Tarde - Part Time (2pm a 6pm)">2pm a 6pm</option>
+            </optgroup>
+            
+            <optgroup label="Noche - Part Time">
+              <option value="Noche - Part Time (6pm a 10pm)">6pm a 10pm</option>
+            </optgroup>
           </select>
         </div>
       </div>

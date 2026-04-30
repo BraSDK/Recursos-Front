@@ -1,6 +1,19 @@
 import { Fingerprint, User, Calendar, Map, Heart } from 'lucide-react';
 
 const Paso1Personal = ({ data, setData, onNext }) => {
+
+  // 1. Calculamos la fecha límite (Hace 18 años a partir de hoy)
+  const getMaxDate = () => {
+    const hoy = new Date();
+    const max = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate());
+    return max.toISOString().split("T")[0]; // Retorna YYYY-MM-DD
+  };
+
+  const handleDateChange = (e) => {
+    const fecha = e.target.value;
+    setData({ ...data, fecha_nacimiento: fecha });
+  };
+
   return (
     <div className="space-y-5">
       <div className="text-center mb-6">
@@ -44,18 +57,21 @@ const Paso1Personal = ({ data, setData, onNext }) => {
           />
         </div>
 
-        {/* Fecha de Nacimiento (FALTABA) */}
+        {/* Fecha de Nacimiento */}
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-400 ml-1">FECHA DE NACIMIENTO</label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-3 text-gray-400" size={20} />
+          <label className="text-[10px] font-black text-indigo-600 ml-1 tracking-widest uppercase">Fecha de Nacimiento</label>
+          <div className="relative group">
+            <Calendar className="absolute left-3 top-3 text-gray-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
             <input 
               type="date"
-              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-gray-600"
+              max={getMaxDate()} // <-- Aquí bloqueamos años futuros y menores de edad
+              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-gray-600 bg-white cursor-pointer appearance-none"
               value={data.fecha_nacimiento || ''}
-              onChange={(e) => setData({...data, fecha_nacimiento: e.target.value})}
+              onChange={handleDateChange}
+              style={{ colorScheme: 'light' }} // Mejora el look del picker en algunos navegadores
             />
           </div>
+          <p className="text-[10px] text-gray-400 mt-1 ml-1">* Debes ser mayor de 18 años para postular.</p>
         </div>
 
         {/* Sexo y Edad */}

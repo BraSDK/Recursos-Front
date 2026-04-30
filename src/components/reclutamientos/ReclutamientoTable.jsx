@@ -1,6 +1,12 @@
 import ReclutamientoRow from './ReclutamientoRow';
+import { configuracionAreas } from '../../constants/reclutamiento';
 
 const ReclutamientoTable = ({ postulantes, selectedIds, onToggleSelect, onAsistencia, onOpenDetalle, onOpenEdit, loading }) => {
+
+  const area = postulantes.length > 0 ? postulantes[0].area_general : 'ventas';
+  const config = configuracionAreas[area] || configuracionAreas['ventas'];
+  const diasArray = Array.from({ length: config.dias_capacitacion }, (_, i) => i + 1);
+
   if (loading) return <div className="text-center py-10 text-gray-500 font-medium italic">Cargando postulantes...</div>;
 
   return (
@@ -22,11 +28,13 @@ const ReclutamientoTable = ({ postulantes, selectedIds, onToggleSelect, onAsiste
                 />
               </th>
               <th className="px-4 py-4 text-center text-[10px] font-bold text-gray-500 uppercase">N°</th>
+              <th className="px-4 py-4 text-left text-xs font-bold text-gray-500 uppercase">Registro</th>
+              <th className="px-4 py-4 text-left text-xs font-bold text-gray-500 uppercase">Cierre</th>
               <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Postulante</th>
               <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Estado</th>
               <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">DNI</th>
               <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">Turno</th>
-              {[1, 2, 3, 4].map(d => (
+              {diasArray.map(d => (
                 <th key={d} className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">Día {d}</th>
               ))}
               <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Acciones</th>
@@ -41,6 +49,7 @@ const ReclutamientoTable = ({ postulantes, selectedIds, onToggleSelect, onAsiste
                   index={index} 
                   onAsistencia={onAsistencia} 
                   onOpenDetalle={onOpenDetalle} 
+                  diasCapacitacion={config.dias_capacitacion}
                   isSelected={selectedIds.includes(post.id)}
                   onToggleSelect={onToggleSelect}
                   onOpenEdit={onOpenEdit}

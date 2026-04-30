@@ -91,7 +91,7 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack, areaGeneral, departam
             </div>
             
             <div className="pr-8">
-              <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Empresa / Entidad</label>
+              <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Empresa / Referido</label>
               <input 
                 placeholder="Nombre de la empresa"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
@@ -145,17 +145,20 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack, areaGeneral, departam
       </div>
 
       {/* Solo mostramos si NO es ventas */}
-      {areaGeneral !== 'ventas' && (
+      {areaGeneral === 'administrativo' && (
         <div className="space-y-1.5 animate-in slide-in-from-left duration-500">
           <label className="text-xs font-black text-gray-500 ml-1">PRETENSIONES SALARIALES (S/.)</label>
           <div className="relative">
             <span className="absolute left-4 top-3.5 text-gray-400 font-bold">S/</span>
             <input 
-              type="number"
+              type="text"
               placeholder="Monto deseado"
-              className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-red-600 font-bold"
-              value={data.salario_sugerido}
-              onChange={(e) => setData({...data, salario_sugerido: e.target.value})}
+              className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-indigo-600 font-bold"
+              value={data.salario_sugerido || ''}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '');
+                setData({...data, salario_sugerido: val});
+              }}
             />
           </div>
         </div>
@@ -167,16 +170,35 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack, areaGeneral, departam
           <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
             <FileText size={20} />
           </div>
-          <h4 className="font-bold text-gray-800 text-sm">Adjuntar CV (Hoja de Vida)</h4>
+          <div>
+            <h4 className="font-bold text-gray-800 text-sm">Documentación del CV</h4>
+            <p className="text-[10px] text-gray-500">¿Cómo entregó su hoja de vida?</p>
+          </div>
         </div>
         
-        <input 
-          type="file" 
-          accept=".pdf" 
-          onChange={handleFileChange}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"
-        />
-        <p className="text-[10px] text-gray-400 mt-2 italic">* Solo formato PDF (Máx. 5MB)</p>
+        {/* Checkbox de CV Físico */}
+        <label className="flex items-center gap-3 cursor-pointer bg-white p-3 rounded-2xl border border-gray-200 hover:border-indigo-300 transition-all">
+          <input 
+            type="checkbox" 
+            className="w-5 h-5 rounded accent-indigo-600"
+            checked={data.cv_fisico || false}
+            onChange={(e) => setData({...data, cv_fisico: e.target.checked})}
+          />
+          <span className="text-sm font-bold text-gray-700">Entregó CV Físico (Presencial)</span>
+        </label>
+
+        {/* Solo mostramos el input de archivo si NO es físico */}
+        {!data.cv_fisico && (
+          <div className="animate-in fade-in duration-300">
+            <input 
+              type="file" 
+              accept=".pdf" 
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"
+            />
+            <p className="text-[10px] text-gray-400 mt-2 italic">* Solo formato PDF (Máx. 5MB)</p>
+          </div>
+        )}
       </div>
 
       {(data.experiencia_laboral || []).length < 3 && (
