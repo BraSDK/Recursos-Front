@@ -14,3 +14,91 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* =========================================================
+   ESTILOS MODERNOS PARA FULLCALENDAR (SOFT UI)
+   ========================================================= */
+
+/* 1. Variables principales: Colores más suaves */
+.fc {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  --fc-border-color: #f1f5f9; /* Un gris súper clarito para los bordes */
+  --fc-page-bg-color: #ffffff;
+  --fc-neutral-bg-color: #f8fafc;
+  --fc-today-bg-color: #f8fafc; /* Quitamos el amarillo feo del "hoy" */
+}
+
+/* 2. Quitar el borde negro exterior de la tabla */
+.fc-theme-standard .fc-scrollgrid {
+  border: none !important;
+}
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: #f1f5f9 !important; /* Bordes internos muy sutiles */
+}
+
+/* 3. Cabecera de los días (lun, mar, mié) */
+.fc .fc-col-header-cell {
+  padding: 16px 0 !important;
+  border-bottom: 2px solid #f1f5f9 !important;
+}
+.fc .fc-col-header-cell-cushion {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #94a3b8; /* Texto gris suave */
+  text-transform: capitalize;
+}
+
+/* 4. Celdas de los días */
+.fc .fc-daygrid-day-frame {
+  min-height: 120px; /* Para que los cuadraditos sean más altos */
+  padding: 4px;
+}
+.fc .fc-daygrid-day-number {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  padding: 8px 12px;
+}
+
+/* 5. Título del Calendario (ej. "mayo de 2026") */
+.fc .fc-toolbar-title {
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  color: #1e293b !important;
+  text-transform: capitalize;
+}
+
+/* 6. ESTILO DE LOS BOTONES (<, >, Week, Day) */
+.fc .fc-button {
+  border-radius: 12px !important; /* Botones bien redonditos */
+  font-weight: 600 !important;
+  text-transform: capitalize !important;
+  padding: 8px 16px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Botones inactivos (blancos) */
+.fc .fc-button-primary {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+}
+.fc .fc-button-primary:hover {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+}
+
+/* Botón Activo (ej. "Week" cuando estás en semana) y Focus */
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #4f46e5 !important; /* Color Indigo de tu botón Add */
+  border-color: #4f46e5 !important;
+  color: white !important;
+  box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3) !important; /* Sombrita morada */
+}
+
+/* Eliminar el outline feo al hacer clic en los botones */
+.fc .fc-button:focus {
+  box-shadow: none !important;
+}

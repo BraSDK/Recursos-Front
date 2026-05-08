@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, Briefcase, Building2, Calculator, CalendarCheck, UserPlus, UserCheck, Home } from 'lucide-react';
+import { Users, Briefcase, Building2, Calculator, CalendarCheck, CalendarRange, UserPlus, UserCheck, Home } from 'lucide-react';
 import Header from './layout/Header'; // Importamos tu nuevo Header
 import PendientesContratacionModal from './postulacion/PendientesContratacionModal';
 import EmpleadoModal from './empleados/EmpleadoModal';
@@ -97,6 +97,10 @@ const Layout = ({ children }) => {
           {/* NUEVA SECCIÓN DE RECLUTAMIENTO */}
           <Link to="/reclutamientos" className={`flex items-center px-6 py-4 transition-all ${isActive('/reclutamientos')}`}>
             <UserPlus className="w-5 h-5 mr-3" /> <span className="font-medium">Reclutamientos</span>
+          </Link>
+          {/* NUEVO LINK DE CALENDARIO */}
+          <Link to="/capacitaciones" className={`flex items-center px-6 py-4 transition-all ${isActive('/capacitaciones')}`}>
+            <CalendarRange className="w-5 h-5 mr-3" /> <span className="font-medium">Agenda de Capacitación</span>
           </Link>
           <Link to="/empleados" className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100">
             <Users className="w-5 h-5 mr-3" /> Empleados

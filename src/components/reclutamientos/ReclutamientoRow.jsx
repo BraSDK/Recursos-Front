@@ -1,6 +1,6 @@
 import { CheckCircle2, XCircle, Eye, Edit } from 'lucide-react';
 import { obtenerEstadoDia } from '@/utils/reclutamientoUtils';
-import { estadoColors, turnoColors } from '@/constants/reclutamiento';
+import { estadoColors, turnoColors, configuracionAreas } from '@/constants/reclutamiento';
 
 const formatFecha = (fecha) => {
   if (!fecha) return '-';
@@ -8,13 +8,32 @@ const formatFecha = (fecha) => {
   return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
 };
 
-const ReclutamientoRow = ({ post, index, diasCapacitacion, onAsistencia, onOpenDetalle, onOpenEdit, isSelected, onToggleSelect }) => {
+const ReclutamientoRow = ({ post, index, areaPostulante, diasCapacitacion, onAsistencia, onOpenDetalle, onOpenEdit, isSelected, onToggleSelect }) => {
 
-  const arrayDias = Array.from({ length: diasCapacitacion }, (_, i) => i + 1);
+  // Pintamos 4 columnas siempre para mantener la estructura de la tabla
+  const columnasTabla = [1, 2, 3, 4];
+  
+  // Obtenemos cuántos días le corresponden a ESTE postulante según SU área
+  const config = configuracionAreas[areaPostulante] || configuracionAreas['ventas'];
+  const diasPermitidos = config.dias_capacitacion;
 
   const fechaFin = post.estado_proceso === 'no_apto' || post.estado_proceso === 'gestion' 
     ? post.updated_at 
     : null;
+
+  // Informacion del turno para mostrar etiqueta y color
+  const obtenerInfoTurno = (horarioCompleto) => {
+    if (!horarioCompleto) return { etiqueta: 'S.I', color: 'bg-gray-50 text-gray-400' };
+    
+    const h = horarioCompleto.toLowerCase();
+    if (h.includes('mañana')) return { etiqueta: 'Mañana', clase: turnoColors.Mañana };
+    if (h.includes('tarde')) return { etiqueta: 'Tarde', clase: turnoColors.Tarde };
+    if (h.includes('noche')) return { etiqueta: 'Noche', clase: turnoColors.Noche };
+    
+    return { etiqueta: 'Otro', clase: 'bg-gray-50 text-gray-500' };
+  };
+
+  const turnoInfo = obtenerInfoTurno(post.horario_interes);
 
   return (
     <tr className={`transition-colors ${isSelected ? 'bg-indigo-50/30' : 'hover:bg-gray-50'} ${post.estado_proceso === 'no_apto' ? 'bg-red-50/20' : ''}`}>
@@ -89,55 +108,64 @@ const ReclutamientoRow = ({ post, index, diasCapacitacion, onAsistencia, onOpenD
 
       {/* Turno */}
       <td className="px-6 py-4 text-center">
-        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase ${turnoColors[post.horario_interes] || 'bg-gray-50'}`}>
-          {post.horario_interes}
+        <span 
+          title={post.horario_interes} // <--- Esto hace que aparezca el horario al pasar el mouse
+          className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase cursor-help transition-all hover:brightness-95 ${turnoInfo.clase}`}
+        >
+          {turnoInfo.etiqueta}
         </span>
       </td>
 
-      {/* Días de Asistencia Dinámicos */}
-      {arrayDias.map(dia => {
+      {/* DÍAS DINÁMICOS: Usamos columnasTabla.map para que nunca falten celdas */}
+      {columnasTabla.map(dia => {
         const estadoReal = obtenerEstadoDia(post, dia);
+        const esDiaInvalido = dia > diasPermitidos;
         const diaAnteriorEstado = dia > 1 ? obtenerEstadoDia(post, dia - 1) : 'asistio';
-        const estaBloqueado = diaAnteriorEstado !== 'asistio';
+        const estaBloqueado = esDiaInvalido || diaAnteriorEstado !== 'asistio';
 
         return (
           <td key={dia} className="px-6 py-4 text-center">
-            <button 
-              disabled={estaBloqueado}
-              onClick={(e) => onAsistencia(e, post, dia)}
-              className={`transition-all transform p-1 rounded-full 
-                ${estaBloqueado ? 'opacity-20 cursor-not-allowed' : 'active:scale-90'}
-                ${estadoReal === 'asistio' ? 'text-green-500' : 
-                  estadoReal === 'falto' ? 'text-red-500' : 
-                  'text-gray-200 hover:text-indigo-500 hover:bg-indigo-50'
-                }`}
-              title={estaBloqueado ? "Debe completar el día anterior" : `Día ${dia}`}
-            >
-              {estadoReal === 'falto' ? <XCircle size={24} /> : <CheckCircle2 size={24} />}
-            </button>
+            {esDiaInvalido ? (
+              <span className="text-gray-200 font-bold">-</span>
+            ) : (
+              <button 
+                disabled={estaBloqueado}
+                onClick={(e) => onAsistencia(e, post, dia)}
+                className={`transition-all transform p-1 rounded-full 
+                  ${estaBloqueado ? 'opacity-20 cursor-not-allowed' : 'active:scale-90 hover:bg-indigo-50'}
+                  ${estadoReal === 'asistio' ? 'text-green-500' : 
+                    estadoReal === 'falto' ? 'text-red-500' : 
+                    'text-gray-200 hover:text-indigo-500'}`}
+                title={esDiaInvalido ? "No aplica" : (estaBloqueado ? "Pendiente" : `Día ${dia}`)}
+              >
+                {estadoReal === 'falto' ? <XCircle size={24} /> : <CheckCircle2 size={24} />}
+              </button>
+            )}
           </td>
         );
       })}
 
-      {/* Acciones */}
-      <td className="px-6 py-4 text-right flex justify-end gap-1">
-        {/* Botón Editar (Naranja/Amber) */}
-        <button 
-          onClick={() => onOpenEdit(post)} 
-          className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-all active:scale-95"
-          title="Editar información"
-        >
-          <Edit size={18} />
-        </button>
+      {/* Acciones - Columna Final */}
+      <td className="px-6 py-4">
+        <div className="flex items-center justify-end gap-2 min-w-[80px]">
+          {/* Botón Editar (Naranja/Amber) */}
+          <button 
+            onClick={() => onOpenEdit(post)} 
+            className="p-2 text-amber-600 hover:bg-amber-50 rounded-xl transition-all active:scale-90"
+            title="Editar información"
+          >
+            <Edit size={18} />
+          </button>
 
-        {/* Botón Ver (Azul/Indigo) */}
-        <button 
-          onClick={() => onOpenDetalle(post)} 
-          className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all active:scale-95"
-          title="Ver ficha"
-        >
-          <Eye size={20} />
-        </button>
+          {/* Botón Ver (Azul/Indigo) */}
+          <button 
+            onClick={() => onOpenDetalle(post)} 
+            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all active:scale-90"
+            title="Ver ficha"
+          >
+            <Eye size={20} />
+          </button>
+        </div>
       </td>
     </tr>
   );

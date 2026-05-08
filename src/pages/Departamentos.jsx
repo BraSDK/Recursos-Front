@@ -3,6 +3,8 @@ import { getDepartamentos, createDepartamento, updateDepartamento, deleteDeparta
 import ConfirmModal from '../components/shared/ConfirmModal';
 import DepartamentoModal from '../components/departamentos/DepartamentoModal';
 import DepartamentoTable from '../components/departamentos/DepartamentoTable';
+import Pagination from '@/components/shared/Pagination';
+
 import { Search, Building2, Plus } from 'lucide-react';
 
 const Departamentos = () => {
@@ -12,20 +14,34 @@ const Departamentos = () => {
   // ESTADOS PARA MODALES
   const [showModal, setShowModal] = useState(false);
   const [selectedDep, setSelectedDep] = useState(null); // null = crear, con datos = editar
+
+  // ESTADOS DE PAGINACIÓN
+  const [meta, setMeta] = useState({ last_page: 1, total: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [depToDelete, setDepToDelete] = useState(null);
 
   useEffect(() => {
     cargarData();
-  }, []);
+  }, [searchTerm, currentPage]);
 
   const cargarData = async () => {
     try {
-      const data = await getDepartamentos();
-      setDepartamentos(data);
+      const response = await getDepartamentos({
+        search: searchTerm, 
+        page: currentPage
+      });
+
+      setDepartamentos(response.data || []);
+
+      setMeta({
+        last_page: response.last_page || 1,
+        total: response.total || 0
+      });
     } catch (error) {
       console.error("Error al cargar departamentos:", error);
+      setDepartamentos([]); // Limpiar tabla en caso de error
     }
   };
 
@@ -61,11 +77,7 @@ const Departamentos = () => {
     }
   };
 
-  // Lógica de filtrado por nombre o código
-  const filtered = departamentos.filter(dep => 
-    dep.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dep.codigo_dep?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  
 
   return (
     <div className="p-6">
@@ -91,15 +103,25 @@ const Departamentos = () => {
           placeholder="Buscar por nombre o código (ej: RRHH)..." 
           className="pl-10 w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // Resetear a página 1 al buscar
+          }}
         />
       </div>
 
       {/* Tabla Componentizada */}
       <DepartamentoTable 
-        departamentos={filtered} 
+        departamentos={departamentos} 
         onEdit={(dep) => { setSelectedDep(dep); setShowModal(true); }} 
         onDelete={handleOpenDelete} 
+      />
+
+      <Pagination
+        meta={meta}
+        currentPage={currentPage} 
+        currentRecordsCount={departamentos.length}
+        onPageChange={(page) => setCurrentPage(page)}
       />
 
       {/* Modal de Registro/Edición */}

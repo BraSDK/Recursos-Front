@@ -3,9 +3,11 @@ import { configuracionAreas } from '../../constants/reclutamiento';
 
 const ReclutamientoTable = ({ postulantes, selectedIds, onToggleSelect, onAsistencia, onOpenDetalle, onOpenEdit, loading }) => {
 
+  const maxDias = 4; 
+  const diasArray = Array.from({ length: maxDias }, (_, i) => i + 1);
+
   const area = postulantes.length > 0 ? postulantes[0].area_general : 'ventas';
   const config = configuracionAreas[area] || configuracionAreas['ventas'];
-  const diasArray = Array.from({ length: config.dias_capacitacion }, (_, i) => i + 1);
 
   if (loading) return <div className="text-center py-10 text-gray-500 font-medium italic">Cargando postulantes...</div>;
 

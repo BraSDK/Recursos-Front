@@ -9,9 +9,28 @@ const Paso1Personal = ({ data, setData, onNext }) => {
     return max.toISOString().split("T")[0]; // Retorna YYYY-MM-DD
   };
 
+  const calcularEdad = (fechaNacimiento) => {
+    if (!fechaNacimiento) return '';
+    const hoy = new Date();
+    const cumple = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - cumple.getFullYear();
+    const m = hoy.getMonth() - cumple.getMonth();
+
+    //Ajuste por si aun no ha cumplido años en el año actual
+    if (m < 0 || (m === 0 && hoy.getDate() < cumple.getDate())) {
+      edad--;
+    }
+    return edad;
+  }
+
   const handleDateChange = (e) => {
     const fecha = e.target.value;
-    setData({ ...data, fecha_nacimiento: fecha });
+    const edadCalculada = calcularEdad(fecha);
+
+    setData({ 
+      ...data,
+      fecha_nacimiento: fecha,
+      edad:edadCalculada });
   };
 
   return (
@@ -76,21 +95,31 @@ const Paso1Personal = ({ data, setData, onNext }) => {
 
         {/* Sexo y Edad */}
         <div className="grid grid-cols-2 gap-4">
-          <select 
-            className="w-full px-4 py-3 border rounded-xl bg-white outline-none"
-            value={data.sexo || ''}
-            onChange={(e) => setData({...data, sexo: e.target.value})}
-          >
-            <option value="">Sexo</option>
-            <option value="M">Masculino</option>
-            <option value="F">Femenino</option>
-          </select>
-          <input 
-            type="number" placeholder="Edad"
-            className="w-full px-4 py-3 border rounded-xl outline-none"
-            value={data.edad || ''}
-            onChange={(e) => setData({...data, edad: e.target.value})}
-          />
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Sexo</label>
+            <select 
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              value={data.sexo || ''}
+              onChange={(e) => setData({...data, sexo: e.target.value})}
+              required
+            >
+              <option value="">Seleccionar</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+              <option value="O">Otro / No binario</option> {/* Requiere cambio en DB */}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Edad</label>
+            <input 
+              type="number" 
+              placeholder="Edad"
+              readOnly // <-- Evita edición manual
+              className="w-full px-4 py-3 border border-gray-100 rounded-xl bg-gray-50 text-gray-500 outline-none cursor-not-allowed font-bold"
+              value={data.edad || ''}
+            />
+          </div>
         </div>
 
         {/* Estado Civil y Ubigeo (FALTABAN) */}

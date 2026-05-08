@@ -1,6 +1,23 @@
-import { HeartPulse, AlertCircle, Send, Users, Activity, HelpCircle } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { HeartPulse, Clock, AlertCircle, Send, Users, Activity, HelpCircle } from 'lucide-react';
+import { HORARIOS_CONFIG } from "@/constants/horarios";
 
-const Paso5Adicionales = ({ data, setData, onConfirm, onBack, loading }) => {
+const Paso5Adicionales = ({ data, setData, onConfirm, onBack, loading, areaGeneral}) => {
+
+  const [categoriaSel, setCategoriaSel] = useState("");
+
+  // Filtrado de categorías según el área general (Lógica de negocio)
+  const categoriasDisponibles = useMemo(() => {
+    const todas = Object.keys(HORARIOS_CONFIG);
+    if (areaGeneral === 'operaciones') return todas.filter(c => c !== 'Part Time');
+    // Aquí puedes agregar más filtros por área en el futuro
+    return todas;
+  }, [areaGeneral]);
+
+  const opcionesFiltradas = useMemo(() => {
+    return categoriaSel ? HORARIOS_CONFIG[categoriaSel].opciones : [];
+  }, [categoriaSel]);
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -79,52 +96,79 @@ const Paso5Adicionales = ({ data, setData, onConfirm, onBack, loading }) => {
               onChange={(e) => setData({...data, emergencia_parentesco: e.target.value})}
             />
             <input 
+              inputMode="numeric"
+              maxLength={9}
               placeholder="Teléfono"
               className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-400 bg-white"
               value={data.emergencia_telefono || ''}
-              onChange={(e) => setData({...data, emergencia_telefono: e.target.value})}
+              onChange={(e) =>  {
+                const val = e.target.value.replace(/\D/g, ''); // Reemplaza cualquier cosa que no sea un número por un string vacío
+                setData({
+                  ...data,
+                  emergencia_telefono: val
+                })}
+              }
             />
           </div>
         </div>
 
-        {/* Motivo Laborar - OBLIGATORIO */}
+        {/* --- NUEVO SELECTOR DE HORARIOS --- */}
+        <div className="space-y-4 pt-2">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-400 uppercase ml-1 tracking-widest">
+              1. Tipo de Jornada de Interés
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {categoriasDisponibles.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    setCategoriaSel(cat);
+                    setData({ ...data, horario_interes: "" });
+                  }}
+                  className={`py-3 px-1 rounded-2xl border-2 text-[9px] font-black uppercase transition-all ${
+                    categoriaSel === cat 
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md' 
+                    : 'border-gray-100 bg-white text-gray-400 hover:border-indigo-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={`space-y-1 transition-all duration-300 ${categoriaSel ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
+              2. Horario específico
+            </label>
+            <div className="relative">
+              <Clock className="absolute left-3 top-3 text-gray-400" size={18} />
+              <select 
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm appearance-none"
+                value={data.horario_interes || ''}
+                onChange={(e) => setData({...data, horario_interes: e.target.value})}
+                required
+              >
+                <option value="">Selecciona el turno</option>
+                {opcionesFiltradas.map(op => (
+                  <option key={op} value={op}>{op}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Motivo Laborar */}
         <div className="space-y-1">
           <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">¿Por qué desea laborar con nosotros?</label>
           <textarea 
-            className="w-full px-4 py-3 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 min-h-[80px]"
+            className="w-full px-4 py-3 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 min-h-[80px] text-sm"
             value={data.motivo_laborar || ''}
             onChange={(e) => setData({...data, motivo_laborar: e.target.value})}
             required
           />
-        </div>
-
-        {/* Horario Interés - OBLIGATORIO */}
-        <div className="space-y-1">
-          <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Turno de Interés</label>
-          <select 
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-            value={data.horario_interes || ''}
-            onChange={(e) => setData({...data, horario_interes: e.target.value})}
-            required
-          >
-            <option value="">Selecciona turno específico</option>
-            
-            <optgroup label="Mañana - Full Time">
-              <option value="Mañana - Full Time (7am a 12am)">7am a 12am</option>
-              <option value="Mañana - Full Time (7am a 1pm)">7am a 1pm</option>
-              <option value="Mañana - Full Time (8am a 12pm)">8am a 12pm</option>
-              <option value="Mañana - Full Time (8am a 1pm)">8am a 1pm</option>
-            </optgroup>
-            
-            <optgroup label="Tarde - Part Time">
-              <option value="Tarde - Part Time (1pm a 6pm)">1pm a 6pm</option>
-              <option value="Tarde - Part Time (2pm a 6pm)">2pm a 6pm</option>
-            </optgroup>
-            
-            <optgroup label="Noche - Part Time">
-              <option value="Noche - Part Time (6pm a 10pm)">6pm a 10pm</option>
-            </optgroup>
-          </select>
         </div>
       </div>
 

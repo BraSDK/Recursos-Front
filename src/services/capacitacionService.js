@@ -5,6 +5,21 @@ export const getGruposAbiertos = async () => {
     return res.data;
 };
 
+export const getEventosCalendario = async () => {
+    try {
+        const response = await api.get('/capacitacion/grupos/calendario');
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener eventos del calendario", error);
+        throw error;
+    }
+};
+
+export const updateGrupo = async (id, datos) => {
+    const res = await api.put(`/capacitacion/grupos/${id}`, datos);
+    return res.data;
+};
+
 export const getGruposFiltrados = async (filtros) => {
     const res = await api.get('/capacitacion/grupos', { params: filtros });
     return res.data;
@@ -20,5 +35,10 @@ export const asignarPostulantesAGrupo = async (grupoId, postulanteIds) => {
         grupo_id: grupoId,
         postulante_ids: postulanteIds
     });
+    return res.data;
+};
+
+export const deleteGrupo = async (id) => {
+    const res = await api.delete(`/capacitacion/grupos/${id}`);
     return res.data;
 };

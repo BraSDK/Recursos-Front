@@ -86,7 +86,7 @@ const FormularioPostulante = () => {
           {step === 2 && <Paso2Contacto data={formData} setData={setFormData} onNext={nextStep} onBack={prevStep} />}
           {step === 3 && <Paso3Academico data={formData} setData={setFormData} onNext={nextStep} onBack={prevStep} />}
           {step === 4 && <Paso4Experiencia data={formData} setData={setFormData} onNext={nextStep} onBack={prevStep} areaGeneral={areaGeneral} departamentoId={departamentoId} />}
-          {step === 5 && <Paso5Adicionales data={formData} setData={setFormData} onConfirm={handleFinalSubmit} onBack={prevStep} loading={loading} />}
+          {step === 5 && <Paso5Adicionales data={formData} setData={setFormData} onConfirm={handleFinalSubmit} onBack={prevStep} loading={loading} areaGeneral={areaGeneral} />}
           
           {step === 6 && (
             <div className="text-center py-10">

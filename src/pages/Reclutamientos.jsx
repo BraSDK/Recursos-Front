@@ -1,24 +1,45 @@
 import { useEffect, useState } from 'react';
-import { getPostulantes, actualizarAsistencia, anularAsistencia, updatePostulante, updateFotoPostulante } from '../services/postulanteService';
+import { usePostulantes } from '../hooks/usePostulantes';
+import { useFiltros } from '../hooks/useFiltros';
+import { updatePostulante, updateFotoPostulante } from '../services/postulanteService';
+
 import DetallePostulanteModal from '../components/postulacion/DetallePostulanteModal';
 import ReclutamientoTable from '../components/reclutamientos/ReclutamientoTable';
 import AsignarGrupoModal from '../components/reclutamientos/AsignarGrupoModal';
-import DrawerPlanificacion from '../components/reclutamientos/DrawerPlanificacion';
+import CapacitacionDrawer from '@/components/reclutamientos/CapacitacionDrawer';
 import EditarPostulanteModal from '../components/postulacion/EditarPostulanteModal';
+import MenuAsistencia from '../components/reclutamientos/MenuAsistencia';
+import Pagination from '@/components/shared/Pagination';
+import BulkActions from '@/components/reclutamientos/BulkActions';
+
 import { Search, UserPlus, CalendarRange, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Reclutamientos = () => {
-  const [postulantes, setPostulantes] = useState([]);
-  const [meta, setMeta] = useState({ 
-    current_page: 1, 
-    last_page: 1, 
-    total: 0 
-  });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
+  const {
+    postulantes,
+    loading,
+    meta,
+    currentPage,
+    setCurrentPage,
+    selectedIds,
+    setSelectedIds,
+    searchTerm,
+    setSearchTerm, // Asegúrate de que tu hook lo exporte
+    cargarData
+  } = usePostulantes(); 
+  
+  const {
+    filtered,
+    view,
+    setView,
+    filtroGrupo,
+    setFiltroGrupo,
+    areaActiva,
+    setAreaActiva
+  } = useFiltros(postulantes, searchTerm); 
+
   const [showAsignarModal, setShowAsignarModal] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
 
   // ESTADOS PARA EL MODAL DE DETALLE
   const [showDetalle, setShowDetalle] = useState(false);
@@ -26,18 +47,7 @@ const Reclutamientos = () => {
   const [selectedPostulante, setSelectedPostulante] = useState(null);
   // En Reclutamientos.jsx, añade este estado:
   const [menuAsistencia, setMenuAsistencia] = useState({ show: false, post: null, dia: null, x: 0, y: 0 });
-
-  // Creamos un estado para alternar entre "Activos" e "Historial"
-  const [view, setView] = useState("active"); // "active" o "history"
-
-  // Asignar Grupos por Horario
-  const [showDrawer, setShowDrawer] = useState(false);
-  const [filtroGrupo, setFiltroGrupo] = useState(null);
-  const [areaActiva, setAreaActiva] = useState("todos"); // "todos", "ventas", "operaciones", "administracion"
-
-  useEffect(() => {
-    cargarData(currentPage, searchTerm);
-  }, [currentPage, searchTerm]);
+ // "todos", "ventas", "operaciones", "administracion"
 
   // FUNCIÓN PARA MANEJAR EL TOGGLE
   const handleToggleSelect = (ids) => {
@@ -85,55 +95,6 @@ const Reclutamientos = () => {
     });
   };
 
-  const cargarData = async (page = 1, search = "") => {
-    try {
-      setLoading(true);
-      const response = await getPostulantes(page, search);
-      setPostulantes(response.data);
-      setMeta({
-        current_page: response.current_page,
-        last_page: response.last_page,
-        total: response.total
-      });
-    } catch (error) {
-      console.error("Error al cargar postulantes:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const normalize = (text) =>
-    text?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-  // Filtrado optimizado: Busca por DNI o Nombre Completo
-  const filtered = postulantes.filter(post => {
-    const term = normalize(searchTerm);
-    const nombreCompleto = normalize(`${post.nombres} ${post.apellido_paterno} ${post.apellido_materno}`);
-
-    // 1. Filtro por Búsqueda (Texto/DNI)
-    const matchesSearch = nombreCompleto.includes(term) || 
-                          post.dni?.toString().includes(term) || 
-                          normalize(post.horario_interes).includes(term);
-
-    // 2. Filtro Vista (Activo/Historial)
-    const isHistory = post.estado_proceso === 'gestion' || post.estado_proceso === 'no_apto';
-    const matchesView = view === "active" ? !isHistory : isHistory;
-
-    // 3. Filtro por Grupo (si se ha seleccionado uno)
-    let matchesGrupo = true; // Si filtroGrupo es null, muestra todo.
-    if (filtroGrupo === 'sin_asignar') { // Si es 'sin_asignar', muestra donde grupo_id sea null.
-      matchesGrupo = !post.grupo_id;  // Si es un ID, filtra por ese grupo.
-    } else if (filtroGrupo !== null) {
-      matchesGrupo = post.grupo_id === filtroGrupo;
-    }
-
-    // 4. Filtro por Área de Interés
-    const matchesArea = areaActiva === "todos" ? true : post.area_general === areaActiva;
-
-    // AMBOS deben ser verdaderos
-    return matchesSearch && matchesView && matchesGrupo && matchesArea;
-  });
-
   // Nueva función para guardar los cambios del modal de edición
   const handleUpdatePostulante = async (datosEditados) => {
     try {
@@ -159,7 +120,6 @@ const Reclutamientos = () => {
     }
 };
 
-console.log("Postulante Ejemplo:", filtered[0]?.nombres, "Asistencias:", filtered[0]?.procesos_seleccion);
   return (
     <div className="p-6">
       {/* Header Principal */}
@@ -241,46 +201,17 @@ console.log("Postulante Ejemplo:", filtered[0]?.nombres, "Asistencias:", filtere
         loading={loading}
       />
 
-      {/* CONTROLES DE PAGINACIÓN */}
-      <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm mt-6">
-        <div className="text-sm text-gray-500">
-          Mostrando <span className="font-bold text-gray-900">{postulantes.length}</span> de <span className="font-bold text-gray-900">{meta.total}</span> registros
-        </div>
-        <div className="flex items-center gap-2">
-          <button 
-            disabled={meta.current_page === 1}
-            onClick={() => setCurrentPage(prev => prev - 1)}
-            className="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-30 transition-all"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          
-          <div className="flex items-center px-4 text-sm font-bold text-gray-700">
-            Página {meta.current_page} de {meta.last_page}
-          </div>
+      <Pagination
+        meta={meta}
+        currentPage={currentPage}
+        onPageChange={(page) => setCurrentPage(page)}
+        currentRecordsCount={filtered.length}
+      />
 
-          <button 
-            disabled={meta.current_page === meta.last_page}
-            onClick={() => setCurrentPage(prev => prev + 1)}
-            className="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-30 transition-all"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      </div>
-
-      {selectedIds.length > 0 && (
-        <div className="fixed bottom-8 right-8 bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-50 animate-in slide-in-from-bottom-10">
-          <span className="font-bold text-sm">{selectedIds.length} seleccionados</span>
-          <button 
-            onClick={() => setShowAsignarModal(true)}
-            className="bg-indigo-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all flex items-center gap-2"
-          >
-            <UserPlus size={16} /> Asignar a Capacitación
-          </button>
-        </div>
-      )}
-
+      <BulkActions
+        selectedIds={selectedIds}
+        onAsignar={() => setShowAsignarModal(true)}
+      />
       {/* Modal de Detalle */}
       <DetallePostulanteModal 
         show={showDetalle} 
@@ -309,67 +240,22 @@ console.log("Postulante Ejemplo:", filtered[0]?.nombres, "Asistencias:", filtere
         }}
       />
 
-      <DrawerPlanificacion 
+      <CapacitacionDrawer 
         show={showDrawer}
         onClose={() => setShowDrawer(false)}
         onSelectGrupo={(grupoId) => {
-          setFiltroGrupo(grupoId); // Esto actualiza el filtro y la tabla se filtra sola
-          setShowDrawer(false);    // Cerramos el drawer tras elegir
+          setFiltroGrupo(grupoId);
+          setShowDrawer(false);
         }}
-        onClearFilters={() => setFiltroGrupo(null)} // Para limpiar el filtro
+        onClear={() => setFiltroGrupo(null)}
       />
 
       {/* Menú Flotante de Asistencia */}
-      {menuAsistencia.show && (
-        <>
-          <div className="fixed inset-0 z-[60]" onClick={() => setMenuAsistencia({ ...menuAsistencia, show: false })} />
-          <div 
-            className="fixed z-[70] bg-white border border-gray-200 shadow-2xl rounded-2xl w-52 py-2 animate-in fade-in zoom-in duration-200"
-            style={{ top: menuAsistencia.y, left: menuAsistencia.x - 200 }} // Ajuste para que no se salga de la pantalla
-          >
-            <div className="px-4 py-2 border-b border-gray-50 mb-1">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Opciones Día {menuAsistencia.dia}</p>
-            </div>
-
-            <button 
-              onClick={async () => {
-                setMenuAsistencia({ ...menuAsistencia, show: false });
-                await actualizarAsistencia(menuAsistencia.post.id, menuAsistencia.dia, true);
-                cargarData();
-              }}
-              className="w-full px-4 py-2.5 text-left text-sm font-semibold text-green-600 hover:bg-green-50 flex items-center gap-3 transition-colors"
-            >
-              <div className="w-2 h-2 rounded-full bg-green-500" /> Marcar Asistencia
-            </button>
-
-            <button 
-              onClick={async () => {
-                if(window.confirm("¿Confirmar falta? Pasará a NO APTO.")) {
-                  setMenuAsistencia({ ...menuAsistencia, show: false });
-                  await actualizarAsistencia(menuAsistencia.post.id, menuAsistencia.dia, false);
-                  cargarData();
-                }
-              }}
-              className="w-full px-4 py-2.5 text-left text-sm font-semibold text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
-            >
-              <div className="w-2 h-2 rounded-full bg-red-500" /> Marcar Falta
-            </button>
-
-            <div className="h-px bg-gray-100 my-1" />
-
-            <button 
-              onClick={async () => {
-                setMenuAsistencia({ ...menuAsistencia, show: false });
-                await anularAsistencia(menuAsistencia.post.id, menuAsistencia.dia);
-                cargarData();
-              }}
-              className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-500 hover:bg-gray-100 flex items-center gap-3 transition-colors"
-            >
-              <div className="w-2 h-2 rounded-full bg-gray-300" /> Anular Registro
-            </button>
-          </div>
-        </>
-      )}
+      <MenuAsistencia 
+        data={menuAsistencia} 
+        onClose={() => setMenuAsistencia({ ...menuAsistencia, show: false })} 
+        onAction={cargarData} // Para recargar la tabla después de marcar asistencia/falta
+      />
     </div>
   );
 };

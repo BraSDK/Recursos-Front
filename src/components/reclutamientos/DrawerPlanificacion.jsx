@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, Calendar, Clock, Plus, FilterX } from "lucide-react";
 import { getGruposFiltrados } from "../../services/capacitacionService";
-const DrawerPlanificacion = ({ show, onClose, onSelectGrupo }) => {
+const DrawerPlanificacion = ({ show, onClose, onSelectGrupo, onClearFilters }) => {
     const [isAnimate, setIsAnimate] = useState(false);
     const [grupos, setGrupos] = useState([]);
     const [areaFiltro, setAreaFiltro] = useState("ventas");
@@ -54,7 +54,7 @@ const DrawerPlanificacion = ({ show, onClose, onSelectGrupo }) => {
               <div>
                   <h2 className="font-bold text-gray-900">Agenda de Capacitación</h2>
                   <button 
-                    onClick={() => onSelectGrupo(null)} 
+                    onClick={onClearFilters} 
                     className="flex items-center gap-1 mt-1 text-[10px] font-bold text-red-500 hover:text-red-700 uppercase transition-colors"
                   >
                     <FilterX size={12} /> Limpiar filtros

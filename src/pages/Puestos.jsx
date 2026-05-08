@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { usePuestos } from '../hooks/usePuestos';
 import { getPuestos, createPuesto, updatePuesto, deletePuesto } from '../services/puestoService';
 import { getDepartamentos } from '../services/departamentoService'; // Necesario para el modal
 import PuestoTable from '../components/puestos/PuestoTable';
@@ -9,71 +10,44 @@ import Pagination from '../components/shared/Pagination';
 import { Search, Briefcase } from 'lucide-react';
 
 const Puestos = () => {
-  const [puestos, setPuestos] = useState([]);
+
+  const {
+    puestos,
+    meta,
+    currentPage,
+    setCurrentPage,
+    searchTerm,
+    setSearchTerm,
+    selectedDep,
+    setSelectedDep,
+    guardarPuesto,
+    eliminarPuesto,
+    loading
+  } = usePuestos();
+
   const [departamentos, setDepartamentos] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedPuesto, setSelectedPuesto] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [puestoToDelete, setPuestoToDelete] = useState(null);
-  const [selectedDep, setSelectedDep] = useState("");
-
-  // ESTADOS DE PAGINACIÓN
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
 
   // Cargamos departamentos solo una vez al inicio
   useEffect(() => {
     cargarDepartamentos();
   }, []);
 
-  // Recargamos data cada vez que cambie un filtro
-  useEffect(() => {
-    cargarData();
-  }, [searchTerm, selectedDep, currentPage]);
-
-  const cargarData = async () => {
-    try {
-      // Enviamos los filtros directamente a la API
-      const response = await getPuestos({ 
-        search: searchTerm, 
-        departamento_id: selectedDep,
-        page: currentPage
-      });
-
-      // Ajustamos según la respuesta de Laravel Paginate
-      setPuestos(response.data);
-      setTotalPages(response.last_page);
-      setTotalRecords(response.total);
-    } catch (error) { console.error("Error cargando puestos:", error); }
-  };
-
   const cargarDepartamentos = async () => {
     try {
-      // Necesitarás este servicio para que el modal de puesto permita elegir departamento
-         const data = await getDepartamentos();
-         setDepartamentos(data);
-    } catch (error) { console.error(error); }
-  };
-
-  const handleSave = async (datos) => {
-    try {
-      if (selectedPuesto) {
-        await updatePuesto(selectedPuesto.id, datos);
-      } else {
-        await createPuesto(datos);
+      const response = await getDepartamentos();
+      // Verificamos si viene paginado o es array simple
+      const lista = response.data && Array.isArray(response.data) 
+        ? response.data 
+        : response;
+      setDepartamentos(lista);
+    } catch (error) { 
+      console.error("Error al cargar departamentos:", error);
+      setDepartamentos([]);
       }
-      setShowModal(false);
-      cargarData();
-    } catch (error) {
-      alert("Error al guardar: " + (error.response?.data?.message || error.message));
-    }
-  };
-
-  const handleOpenDelete = (id, nombre) => {
-    setPuestoToDelete({ id, nombre });
-    setShowDeleteModal(true);
   };
 
   const confirmDelete = async () => {
@@ -82,19 +56,29 @@ const Puestos = () => {
     cargarData();
   };
 
-  const filtered = puestos.filter(p => 
-    p.nombre_puesto.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // Resetear página al buscar o filtrar
   const handleSearchChange = (val) => {
-    setSearchTerm(val);
+    setSearchTerm(val); 
     setCurrentPage(1);
   };
 
   const handleDepChange = (val) => {
     setSelectedDep(val);
     setCurrentPage(1);
+  };
+
+  const handleSave = async (datos) => {
+    try {
+      await guardarPuesto(datos, selectedPuesto?.id);
+      setShowModal(false);
+    } catch (error) {
+      alert("Error: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleOpenDelete = (id, nombre) => {
+    setPuestoToDelete({ id, nombre });
+    setShowDeleteModal(true);
   };
 
   return (
@@ -124,9 +108,8 @@ const Puestos = () => {
       />
 
       <Pagination 
+        meta={meta}
         currentPage={currentPage}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
         currentRecordsCount={puestos.length}
         onPageChange={(page) => setCurrentPage(page)}
       />
