@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getEventosCalendario, crearGrupo, updateGrupo } from '@/services/capacitacionService';
+import { getEventosCalendario, crearGrupo, updateGrupo, deleteGrupo } from '@/services/capacitacionService';
 
 export const useCapacitacion = () => {
     const [eventos, setEventos] = useState([]);

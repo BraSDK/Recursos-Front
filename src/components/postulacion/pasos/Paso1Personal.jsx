@@ -46,7 +46,7 @@ const Paso1Personal = ({ data, setData, onNext }) => {
           <Fingerprint className="absolute left-3 top-3 text-gray-400" size={20} />
           <input 
             type="text" placeholder="DNI"
-            className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500"
             value={data.dni || ''}
             onChange={(e) => setData({...data, dni: e.target.value})}
           />
@@ -55,7 +55,7 @@ const Paso1Personal = ({ data, setData, onNext }) => {
         {/* Nombres */}
         <input 
           type="text" placeholder="Nombres"
-          className="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500"
           value={data.nombres || ''}
           onChange={(e) => setData({...data, nombres: e.target.value})}
         />
@@ -78,13 +78,13 @@ const Paso1Personal = ({ data, setData, onNext }) => {
 
         {/* Fecha de Nacimiento */}
         <div className="space-y-1">
-          <label className="text-[10px] font-black text-indigo-600 ml-1 tracking-widest uppercase">Fecha de Nacimiento</label>
+          <label className="text-[10px] font-black text-red-600 ml-1 tracking-widest uppercase">Fecha de Nacimiento</label>
           <div className="relative group">
-            <Calendar className="absolute left-3 top-3 text-gray-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+            <Calendar className="absolute left-3 top-3 text-gray-400 group-focus-within:text-red-500 transition-colors" size={20} />
             <input 
               type="date"
               max={getMaxDate()} // <-- Aquí bloqueamos años futuros y menores de edad
-              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-gray-600 bg-white cursor-pointer appearance-none"
+              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500 text-gray-600 bg-white cursor-pointer appearance-none"
               value={data.fecha_nacimiento || ''}
               onChange={handleDateChange}
               style={{ colorScheme: 'light' }} // Mejora el look del picker en algunos navegadores
@@ -98,7 +98,7 @@ const Paso1Personal = ({ data, setData, onNext }) => {
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Sexo</label>
             <select 
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-red-500 text-sm"
               value={data.sexo || ''}
               onChange={(e) => setData({...data, sexo: e.target.value})}
               required
@@ -149,7 +149,7 @@ const Paso1Personal = ({ data, setData, onNext }) => {
 
       <button 
         onClick={onNext}
-        className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg mt-4 active:scale-95 transition-transform"
+        className="w-full bg-red-600 text-white font-bold py-4 rounded-2xl shadow-lg mt-4 active:scale-95 transition-transform"
       >
         Siguiente
       </button>

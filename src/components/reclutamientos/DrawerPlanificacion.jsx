@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, Calendar, Clock, Plus, FilterX } from "lucide-react";
 import { getGruposFiltrados } from "../../services/capacitacionService";
-const DrawerPlanificacion = ({ show, onClose, onSelectGrupo, onClearFilters }) => {
+const DrawerPlanificacion = ({ show, onClose, onSelectGrupo, onClearFilters, tipo }) => {
     const [isAnimate, setIsAnimate] = useState(false);
     const [grupos, setGrupos] = useState([]);
     const [areaFiltro, setAreaFiltro] = useState("ventas");
@@ -14,12 +14,12 @@ const DrawerPlanificacion = ({ show, onClose, onSelectGrupo, onClearFilters }) =
       } else {
         setIsAnimate(false);
       }
-    }, [show, areaFiltro]);
+    }, [show, areaFiltro, tipo]);
 
     const cargarGrupos = async () => {
       try {
         // Usamos el servicio para traer grupos del área seleccionada
-        const data = await getGruposFiltrados({ area_general: areaFiltro });
+        const data = await getGruposFiltrados({ area_general: areaFiltro, tipo: tipo });
         setGrupos(data);
       } catch (error) {
         console.error("Error al cargar grupos:", error);
@@ -86,7 +86,7 @@ const DrawerPlanificacion = ({ show, onClose, onSelectGrupo, onClearFilters }) =
                 grupos.map(g => (
                   <div 
                     key={g.id}
-                    onClick={() => onSelectGrupo(g.id)} 
+                    onClick={() => onSelectGrupo(g.id, g.fecha_capacitacion)} 
                     className="p-4 border rounded-xl hover:border-indigo-500 cursor-pointer transition-all hover:bg-indigo-50/50"
                   >
                     <p className="font-bold text-sm text-gray-900">{g.nombre_grupo}</p>

@@ -12,6 +12,22 @@ const EmpleadoModal = ({ show, onClose, onSave, empleado, puestos, postulantePre
 
   const [isRendered, setIsRendered] = useState(false);
 
+  const puestosFiltrados = (() => {
+    if (!Array.isArray(puestos)) return [];
+
+    // CASO 1: Si estamos EDITANDO o es un REGISTRO MANUAL desde cero
+    if (empleado || (!postulantePreload && !empleado)) {
+      return puestos;
+    }
+
+    // CASO 2: Si viene de la CAMPANITA (postulantePreload)
+    if (postulantePreload) {
+      return puestos.filter(p => p.id === postulantePreload.puesto_id);
+    }
+
+    return puestos;
+  })();
+
   useEffect(() => {
     if (show) {
       setIsRendered(true);
@@ -144,14 +160,28 @@ const EmpleadoModal = ({ show, onClose, onSave, empleado, puestos, postulantePre
                 <div className="relative">
                   <Briefcase className="absolute left-3 top-2.5 text-gray-400" size={16} />
                   <select 
-                    className="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm appearance-none"
+                    className={`w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm appearance-none ${
+                      postulantePreload ? "bg-blue-50 border-blue-200 text-blue-700 cursor-not-allowed" : ""
+                    }`}
                     value={formData.puesto_id}
                     onChange={(e) => setFormData({...formData, puesto_id: e.target.value})}
                     required
+                    // Bloqueamos el cambio si viene de reclutamiento para mantener la integridad del proceso
+                    disabled={!!postulantePreload} 
                   >
                     <option value="">Seleccionar puesto...</option>
-                    {puestos.map(p => <option key={p.id} value={p.id}>{p.nombre_puesto}</option>)}
+                    {Array.isArray(puestosFiltrados) && puestosFiltrados.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.nombre_puesto}
+                      </option>
+                    ))}
                   </select>
+                  {/* Pequeña nota informativa solo si viene de reclutamiento */}
+                  {postulantePreload && (
+                    <p className="text-[9px] text-blue-500 font-bold mt-1 px-1 uppercase">
+                      Puesto vinculado al proceso de selección
+                    </p>
+                  )}
                 </div>
               </div>
 

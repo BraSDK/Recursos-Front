@@ -6,8 +6,14 @@ export const getPuestos = async (params = {}) => {
 };
 
 export const getPuestosPorDepartamento = async (departamentoId) => {
-    const response = await api.get(`/puestos/departamento/${departamentoId}`);
-    return response.data;
+    try {
+        // CORRECCIÓN AQUÍ: Agregamos /public al inicio de la ruta
+        const res = await api.get(`/public/puestos/departamento/${departamentoId}`);
+        return res.data;
+    } catch (error) {
+        console.error("Error al obtener puestos por departamento", error);
+        throw error;
+    }
 };
 
 export const createPuesto = async (datos) => {

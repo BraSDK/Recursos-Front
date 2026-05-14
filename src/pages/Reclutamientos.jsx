@@ -5,19 +5,19 @@ import { updatePostulante, updateFotoPostulante } from '../services/postulanteSe
 
 import DetallePostulanteModal from '../components/postulacion/DetallePostulanteModal';
 import ReclutamientoTable from '../components/reclutamientos/ReclutamientoTable';
-import AsignarGrupoModal from '../components/reclutamientos/AsignarGrupoModal';
+import AsignarGrupoModal from '../components/shared/AsignarGrupoModal';
 import CapacitacionDrawer from '@/components/reclutamientos/CapacitacionDrawer';
 import EditarPostulanteModal from '../components/postulacion/EditarPostulanteModal';
 import MenuAsistencia from '../components/reclutamientos/MenuAsistencia';
 import Pagination from '@/components/shared/Pagination';
-import BulkActions from '@/components/reclutamientos/BulkActions';
+import BulkActions from '@/components/shared/BulkActions';
 
 import { Search, UserPlus, CalendarRange, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Reclutamientos = () => {
   const {
     postulantes,
-    loading,
+    loading: loadingData,
     meta,
     currentPage,
     setCurrentPage,
@@ -48,6 +48,9 @@ const Reclutamientos = () => {
   // En Reclutamientos.jsx, añade este estado:
   const [menuAsistencia, setMenuAsistencia] = useState({ show: false, post: null, dia: null, x: 0, y: 0 });
  // "todos", "ventas", "operaciones", "administracion"
+
+ // Agregamos este estado local para las acciones de escritura (update)
+ const [isUpdating, setIsUpdating] = useState(false);
 
   // FUNCIÓN PARA MANEJAR EL TOGGLE
   const handleToggleSelect = (ids) => {
@@ -98,7 +101,7 @@ const Reclutamientos = () => {
   // Nueva función para guardar los cambios del modal de edición
   const handleUpdatePostulante = async (datosEditados) => {
     try {
-      setLoading(true);
+      setIsUpdating(true);
       // Aquí llamarías a tu servicio de actualización, ej:
       await updatePostulante(datosEditados.id, datosEditados);
       await cargarData();
@@ -198,7 +201,7 @@ const Reclutamientos = () => {
         onAsistencia={handleOpenMenu}
         onOpenDetalle={(post) => { setSelectedPostulante(post); setShowDetalle(true); }}
         onOpenEdit={(post) => { setSelectedPostulante(post); setShowEdit(true); }}
-        loading={loading}
+        loading={loadingData}
       />
 
       <Pagination
@@ -232,16 +235,18 @@ const Reclutamientos = () => {
       {/* Modal de Asignación a Grupos */}
       <AsignarGrupoModal 
         show={showAsignarModal}
-        postulanteIds={selectedIds}
+        ids={selectedIds} // <--- CAMBIA ESTO (Antes era postulanteIds)
+        tipo="postulante" // Asegúrate de pasar el tipo también
         onClose={() => setShowAsignarModal(false)}
         onSuccess={() => {
-          setSelectedIds([]); // Limpiar selección
-          cargarData();      // Refrescar tabla
+          setSelectedIds([]);
+          cargarData();
         }}
       />
 
       <CapacitacionDrawer 
         show={showDrawer}
+        tipo="postulante"
         onClose={() => setShowDrawer(false)}
         onSelectGrupo={(grupoId) => {
           setFiltroGrupo(grupoId);

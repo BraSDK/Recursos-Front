@@ -213,7 +213,7 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack, areaGeneral, departam
       {/* SECCIÓN: PUESTO DE INTERÉS (FILTRADO) */}
       <div className="p-6 bg-gray-50 border-2 border-gray-100 rounded-[2rem] space-y-3 mt-4 animate-in fade-in duration-700">
         <label className="flex items-center gap-2 text-xs font-black text-gray-600 uppercase tracking-widest ml-1">
-          <Briefcase size={14} className="text-red-600" /> ¿A qué puesto deseas postular?
+          <Briefcase size={14} className="text-indigo-600" /> ¿A qué puesto deseas postular?
         </label>
         
         <div className="relative group">
@@ -247,7 +247,7 @@ const Paso4Experiencia = ({ data, setData, onNext, onBack, areaGeneral, departam
         </button>
         <button 
           onClick={onNext} 
-          className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 active:scale-95 transition-all"
+          className="flex-1 bg-red-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-red-700 active:scale-95 transition-all"
         >
           Siguiente
         </button>

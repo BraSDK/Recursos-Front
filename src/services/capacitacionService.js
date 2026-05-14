@@ -1,8 +1,20 @@
 import api from '../api/axios';
 
-export const getGruposAbiertos = async () => {
-    const res = await api.get('/capacitacion/grupos');
-    return res.data;
+export const getGrupoById = async (id) => {
+    try {
+        const res = await api.get(`/capacitacion/grupos/${id}`);
+        return res.data;
+    } catch (error) {
+        console.error("Error al obtener el grupo con inscritos:", error);
+        throw error;
+    }
+};
+
+export const getGruposAbiertos = async (tipo = null) => {
+    // Si tipo llega como "postulante", generamos el objeto { params: { tipo: "postulante" } }
+    const config = tipo ? { params: { tipo } } : {};
+    const response = await api.get('/capacitacion/grupos', config);
+    return response.data;
 };
 
 export const getEventosCalendario = async () => {
@@ -30,12 +42,22 @@ export const crearGrupo = async (datos) => {
     return res.data;
 };
 
-export const asignarPostulantesAGrupo = async (grupoId, postulanteIds) => {
+// Renombramos a algo más genérico: asignarAGrupo
+export const asignarCandidatosAGrupo = async (grupoId, ids, tipo = 'postulante') => {
     const res = await api.post('/capacitacion/grupos/asignar', {
         grupo_id: grupoId,
-        postulante_ids: postulanteIds
+        ids: ids,      // Cambiamos 'postulante_ids' por 'ids' para que sea genérico
+        tipo: tipo     // 'postulante' o 'preseleccion'
     });
     return res.data;
+};
+
+export const desvincularUsuarioDeGrupo = async (grupoId, usuarioId, tipo) => {
+    const response = await api.post(`/capacitacion/grupos/${grupoId}/desvincular`, {
+        usuario_id: usuarioId,
+        tipo: tipo
+    });
+    return response.data;
 };
 
 export const deleteGrupo = async (id) => {

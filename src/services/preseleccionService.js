@@ -1,8 +1,8 @@
 import api from '../api/axios';
 
-export const getPreSelecciones = async ({ estado, page, search }) => {
+export const getPreSelecciones = async ({ estado, page, search, grupoId }) => {
     const response = await api.get('/pre-selecciones', {
-        params: { estado, page, search }
+        params: { estado, page, search, grupoId }
     });
     return response.data;
 };

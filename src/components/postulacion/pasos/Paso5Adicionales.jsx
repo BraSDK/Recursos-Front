@@ -184,7 +184,7 @@ const Paso5Adicionales = ({ data, setData, onConfirm, onBack, loading, areaGener
         <button 
           onClick={onConfirm}
           disabled={loading}
-          className="flex-1 bg-indigo-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all disabled:bg-indigo-300"
+          className="flex-1 bg-red-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-red-100 hover:bg-red-700 active:scale-95 transition-all disabled:bg-indigo-300"
         >
           {loading ? (
             <span className="flex items-center gap-2">

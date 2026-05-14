@@ -141,7 +141,7 @@ const PreSeleccionModal = ({ show, onClose, onSave, invitacion, puestos }) => {
             <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all">
               Cancelar
             </button>
-            <button type="submit" className="flex-1 px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all shadow-sm shadow-blue-200">
+            <button type="submit" className="flex-1 px-4 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all shadow-sm shadow-blue-200">
               {invitacion ? "Guardar cambios" : "Crear invitación"}
             </button>
           </div>

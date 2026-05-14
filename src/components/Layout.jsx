@@ -33,9 +33,17 @@ const Layout = ({ children }) => {
 
   const fetchPuestos = async () => {
     try {
-      const data = await getPuestos();
-      setPuestos(data);
-    } catch (error) { console.error(error); }
+      const response = await getPuestos();
+      // Verificamos si la data viene en response, response.data o response.data.data
+      const listaPuestos = Array.isArray(response) 
+        ? response 
+        : (response.data && Array.isArray(response.data) ? response.data : []);
+        
+      setPuestos(listaPuestos);
+    } catch (error) { 
+      console.error("Error al cargar puestos:", error);
+      setPuestos([]); // Fallback a array vacío para evitar que .map explote
+    }
   };
 
   const handleSelectPostulante = async (postulante) => {
@@ -73,15 +81,19 @@ const Layout = ({ children }) => {
   };
 
   // Función para resaltar el link activo
-  const isActive = (path) => location.pathname === path ? "bg-blue-50 text-blue-600 border-r-4 border-blue-600" : "text-gray-700 hover:bg-gray-100";
+  const isActive = (path) => location.pathname === path ? "bg-red-50 text-red-600 border-r-4 border-red-600" : "text-gray-700 hover:bg-gray-100";
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold text-blue-600">RRHH CK2</h2>
+        <div className="px-6 py-8 border-b border-slate-50 flex items-center justify-center min-h-[100px]">
+          <img 
+            src="Layout_ck2.png" /* Reemplaza esto con tu import o ruta */
+            alt="Logo de la Empresa" 
+            className="h-12 w-auto object-contain" /* h-12 (48px) suele ser perfecto para logos rectangulares */
+          />
         </div>
-        <nav className="mt-6">
+        <nav className="mt-4 flex-1 overflow-y-auto">
           <Link to="/" className={`flex items-center px-6 py-3 transition-all ${isActive('/')}`}>
             <Home className="w-5 h-5 mr-3" /> Dashboard
           </Link>

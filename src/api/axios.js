@@ -8,4 +8,19 @@ const api = axios.create({
     }
 });
 
+// Interceptor: Revisa cada petición antes de que salga hacia Laravel
+api.interceptors.request.use((config) => {
+    // Buscamos si el usuario ya inició sesión y tiene un token guardado
+    const token = localStorage.getItem('auth_token');
+    
+    // Si hay token, lo pegamos en la cabecera de la petición
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
 export default api;

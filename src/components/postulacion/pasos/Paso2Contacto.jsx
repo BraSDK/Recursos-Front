@@ -24,13 +24,13 @@ const Paso2Contacto = ({ data, setData, onNext, onBack }) => {
       <div className="space-y-4">
         {/* Email */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Correo Electrónico</label>
+          <label className="text-[10px] font-bold text-red-400 uppercase ml-1">Correo Electrónico</label>
           <div className="relative">
             <Mail className="absolute left-3 top-3 text-gray-400" size={20} />
             <input 
               type="email" 
               placeholder="correo@ejemplo.com"
-              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500 transition-all"
               value={data.email || ''}
               onChange={(e) => setData({...data, email: e.target.value})}
             />
@@ -39,7 +39,7 @@ const Paso2Contacto = ({ data, setData, onNext, onBack }) => {
 
         {/* Celular (Ahora ocupa todo el ancho al quitar el fijo) */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Número de Celular</label>
+          <label className="text-[10px] font-bold text-red-400 uppercase ml-1">Número de Celular</label>
           <div className="relative">
             <Smartphone className="absolute left-3 top-3 text-gray-400" size={20} />
             <input 
@@ -47,7 +47,7 @@ const Paso2Contacto = ({ data, setData, onNext, onBack }) => {
               inputMode="numeric"
               maxLength={9}
               placeholder="999 999 999"
-              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500 transition-all"
               value={data.celular || ''}
               onChange={(e) => {
                 // Reemplaza cualquier cosa que no sea un número por un string vacío
@@ -60,13 +60,13 @@ const Paso2Contacto = ({ data, setData, onNext, onBack }) => {
 
         {/* Dirección Actual */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Dirección de Domicilio</label>
+          <label className="text-[10px] font-bold text-red-400 uppercase ml-1">Dirección de Domicilio</label>
           <div className="relative">
             <MapPin className="absolute left-3 top-3 text-gray-400" size={20} />
             <input 
               type="text" 
               placeholder="Av. Las Flores 123..."
-              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500 transition-all"
               value={data.direccion || ''}
               onChange={(e) => setData({...data, direccion: e.target.value})}
             />
@@ -75,11 +75,11 @@ const Paso2Contacto = ({ data, setData, onNext, onBack }) => {
         
         {/* Distrito */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Distrito</label>
+          <label className="text-[10px] font-bold text-red-400 uppercase ml-1">Distrito</label>
           <input 
             type="text" 
             placeholder="Ej. Los Olivos"
-            className="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+            className="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500 transition-all"
             value={data.distrito || ''}
             onChange={(e) => setData({...data, distrito: e.target.value})}
           />
@@ -95,7 +95,7 @@ const Paso2Contacto = ({ data, setData, onNext, onBack }) => {
         </button>
         <button 
           onClick={handleNext} // Usamos la función de control
-          className="flex-1 bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-indigo-700 active:scale-95 transition-all"
+          className="flex-1 bg-red-600 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-red-700 active:scale-95 transition-all"
         >
           Siguiente
         </button>

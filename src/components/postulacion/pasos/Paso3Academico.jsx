@@ -35,7 +35,7 @@ const Paso3Academico = ({ data, setData, onNext, onBack }) => {
 
       <div className="space-y-4">
         {(data.formacion_academica || []).map((est, index) => (
-          <div key={index} className="p-5 border border-indigo-100 rounded-3xl bg-indigo-50/30 space-y-3 relative">
+          <div key={index} className="p-5 border border-red-100 rounded-3xl bg-red-50/30 space-y-3 relative">
             {/* Botón Eliminar */}
             <button 
               onClick={() => eliminarEstudio(index)}
@@ -47,9 +47,9 @@ const Paso3Academico = ({ data, setData, onNext, onBack }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-8">
               <div>
-                <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Nivel</label>
+                <label className="text-[10px] font-bold text-red-400 uppercase ml-1">Nivel</label>
                 <select 
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-red-500"
                   value={est.nivel || ''}
                   onChange={(e) => actualizarEstudio(index, 'nivel', e.target.value)}
                 >
@@ -62,9 +62,9 @@ const Paso3Academico = ({ data, setData, onNext, onBack }) => {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Estado</label>
+                <label className="text-[10px] font-bold text-red-400 uppercase ml-1">Estado</label>
                 <select 
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-red-500"
                   value={est.estado || ''}
                   onChange={(e) => actualizarEstudio(index, 'estado', e.target.value)}
                 >
@@ -77,10 +77,10 @@ const Paso3Academico = ({ data, setData, onNext, onBack }) => {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Institución</label>
+              <label className="text-[10px] font-bold text-red-400 uppercase ml-1">Institución</label>
               <input 
                 placeholder="Ej. SENATI, UNMSM..."
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-red-500"
                 value={est.institucion || ''}
                 onChange={(e) => actualizarEstudio(index, 'institucion', e.target.value)}
               />
@@ -88,10 +88,10 @@ const Paso3Academico = ({ data, setData, onNext, onBack }) => {
 
             <div className={`grid gap-3 transition-all duration-300 ${ (est.estado === 'Incompleto' || est.estado === 'Cursando') ? 'grid-cols-2' : 'grid-cols-1' }`}>
               <div>
-                <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1">Especialidad</label>
+                <label className="text-[10px] font-bold text-red-400 uppercase ml-1">Especialidad</label>
                 <input 
                   placeholder="Carrera / Curso"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-red-500"
                   value={est.especialidad || ''}
                   onChange={(e) => actualizarEstudio(index, 'especialidad', e.target.value)}
                 />
@@ -121,7 +121,7 @@ const Paso3Academico = ({ data, setData, onNext, onBack }) => {
 
       <button 
         onClick={agregarEstudio}
-        className="w-full py-4 border-2 border-dashed border-indigo-200 rounded-2xl text-indigo-600 flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors font-medium"
+        className="w-full py-4 border-2 border-dashed border-red-200 rounded-2xl text-red-600 flex items-center justify-center gap-2 hover:bg-red-50 transition-colors font-medium"
       >
         <Plus size={20} /> Añadir otro estudio
       </button>
@@ -130,7 +130,7 @@ const Paso3Academico = ({ data, setData, onNext, onBack }) => {
         <button onClick={onBack} className="flex-1 py-4 text-gray-500 font-semibold hover:bg-gray-100 rounded-2xl transition-all">
           Atrás
         </button>
-        <button onClick={onNext} className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 active:scale-95 transition-all">
+        <button onClick={onNext} className="flex-1 bg-red-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-red-700 active:scale-95 transition-all">
           Siguiente
         </button>
       </div>

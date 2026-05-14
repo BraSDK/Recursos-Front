@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Search, UserPlus, Filter, Clock, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, UserPlus, CalendarRange, Clock, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getPuestos } from '@/services/puestoService';
 import { getPreSelecciones, createPreSeleccion, updatePreSeleccion, deletePreSeleccion } from '@/services/preseleccionService';
 import PreSeleccionTable from '@/components/preseleccion/PreSeleccionTable';
 import PreSeleccionModal from '@/components/preseleccion/PreSeleccionModal';
+import AsignarGrupoModal from '../components/shared/AsignarGrupoModal';
+import CapacitacionDrawer from '@/components/reclutamientos/CapacitacionDrawer';
+import BulkActions from '@/components/shared/BulkActions';
 
 const PreSelecciones = () => {
   const [invitaciones, setInvitaciones] = useState([]);
@@ -19,9 +22,33 @@ const PreSelecciones = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedPre, setSelectedPre] = useState(null);
 
-  useEffect(() => {
-    cargarData();
-  }, [activeTab, currentPage, searchTerm]);
+  // Capacitacion Drawer
+  const [showAsignarModal, setShowAsignarModal] = useState(false);
+  const [filtroGrupo, setFiltroGrupo] = useState(null);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  // FUNCIÓN PARA MANEJAR EL TOGGLE
+  const handleToggleSelect = (ids) => {
+    setSelectedIds(prev => {
+      // Si recibimos un array vacío (ej. desmarcar todo), devolvemos []
+      if (ids.length === 0 && prev.length > 0) return [];
+      
+      // Creamos una copia del estado actual
+      const nextSelection = [...prev];
+      
+      ids.forEach(id => {
+        if (nextSelection.includes(id)) {
+          // Si ya existe, lo quitamos
+          nextSelection.splice(nextSelection.indexOf(id), 1);
+        } else {
+          // Si no existe, lo agregamos
+          nextSelection.push(id);
+        }
+      });
+      return nextSelection;
+    });
+  };
 
   useEffect(() => {
     cargarPuestos();
@@ -32,7 +59,8 @@ const PreSelecciones = () => {
       const response = await getPreSelecciones({ 
         estado: activeTab, 
         page: currentPage, 
-        search: searchTerm 
+        search: searchTerm,
+        grupoId: filtroGrupo // Pasamos el filtro de grupo para que el backend lo aplique
       });
       // Laravel paginate() devuelve la data en response.data
       setInvitaciones(response.data); 
@@ -40,6 +68,10 @@ const PreSelecciones = () => {
       setTotalRecords(response.total);
     } catch (error) { console.error(error); }
   };
+
+  useEffect(() => {
+    cargarData();
+  }, [activeTab, currentPage, searchTerm, filtroGrupo]);
 
   const cargarPuestos = async () => {
     try {
@@ -89,7 +121,7 @@ const PreSelecciones = () => {
         </div>
         <button 
           onClick={() => { setSelectedPre(null); setShowModal(true); }} 
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold transition-all shadow-lg shadow-blue-100"
+          className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold transition-all shadow-lg shadow-blue-100"
         >
           <UserPlus size={18}/> Invitar Candidato
         </button>
@@ -116,7 +148,7 @@ const PreSelecciones = () => {
         ))}
       </div>
 
-      <div className="flex gap-4">
+      <div className="mb-6 flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
           <input 
@@ -127,12 +159,26 @@ const PreSelecciones = () => {
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
           />
         </div>
+        <button 
+          onClick={() => setShowDrawer(true)}
+          className="bg-white border border-gray-300 px-4 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 shadow-sm"
+        >
+          <CalendarRange size={18} /> Planificación
+        </button>
       </div>
+
 
       <PreSeleccionTable 
         invitaciones={invitaciones} 
+        selectedIds={selectedIds} 
+        onToggleSelect={handleToggleSelect} 
         onEdit={(inv) => { setSelectedPre(inv); setShowModal(true); }}
-        onDelete={async (id) => { if(confirm('¿Eliminar invitación?')) { await deletePreSeleccion(id); cargarData(); } }}
+        onDelete={async (id) => { 
+          if(confirm('¿Eliminar invitación?')) { 
+            await deletePreSeleccion(id); 
+            cargarData(); 
+          } 
+        }}
       />
 
       {/* CONTROLES DE PAGINACIÓN */}
@@ -165,11 +211,44 @@ const PreSelecciones = () => {
 
       <PreSeleccionModal 
         show={showModal} 
-        onClose={() => setShowModal(false)} 
-        onSave={handleSave} 
+        onClose={() => setShowModal(false)}
+        onSave={handleSave}
         invitacion={selectedPre}
         puestos={puestos}
       />
+
+      <BulkActions
+        selectedIds={selectedIds}
+        onAsignar={() => setShowAsignarModal(true)}
+      />
+
+      {/* Modal de Asignación a Grupos */}
+      <AsignarGrupoModal 
+        show={showAsignarModal}
+        ids={selectedIds}            // Antes era postulanteIds
+        tipo="preseleccion"          // Especificamos el tipo para el backend
+        onClose={() => setShowAsignarModal(false)}
+        onSuccess={() => {
+          setSelectedIds([]);        // Limpiar selección tras éxito
+          cargarData();              // Refrescar tabla
+        }}
+      />
+
+      <CapacitacionDrawer 
+        show={showDrawer}
+        tipo="preseleccion" // Pasamos el tipo para filtrar grupos específicos de preselección
+        onClose={() => setShowDrawer(false)}
+        onSelectGrupo={(grupoId) => {
+          setFiltroGrupo(grupoId); // Guardamos el ID para filtrar la tabla
+          setCurrentPage(1);       // Reseteamos a la página 1
+          setShowDrawer(false);    // Cerramos el panel lateral
+        }}
+        onClear={() => {
+          setFiltroGrupo(null);    // Limpiamos el filtro
+          setCurrentPage(1);
+        }}
+      />
+
     </div>
   );
 };
